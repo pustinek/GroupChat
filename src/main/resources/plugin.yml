@@ -1,9 +1,10 @@
+#TODO [CHANGE_ME] - change name of plugin, commands, permissions
 name: McTemplate
 version: ${project.version}
 main: com.pustinek.mctemplate.McTemplate
-api-version: 1.13
+api-version: "1.13"
 authors: [Pustinek]
-description: A template for minecraft plugin development
+description: CHANGE_ME_DESCRIPTION
 commands:
   mctemplate:
     description: 'for all the commands use /McTemplate help'
