@@ -1,15 +1,22 @@
-#TODO [CHANGE_ME] - change name of plugin, commands, permissions
-name: McTemplate
+#TODO [CHANGE_ME] - replace "change_me_plugin_name" with your plugin name
+name: change_me_plugin_name
 version: ${project.version}
+#TODO [CHANGE_ME] - change main value
 main: com.pustinek.mctemplate.McTemplate
 api-version: "1.13"
 authors: [Pustinek]
-description: CHANGE_ME_DESCRIPTION
+description: change_me_description
 commands:
-  mctemplate:
-    description: 'for all the commands use /McTemplate help'
-    usage: 'McTemplate has not started correctly, check the log file (or console) and correct any errors.'
+  change_me_plugin_name:
+    description: 'for all the commands use /change_me_plugin_name help'
+    usage: 'change_me_plugin_name has not started correctly, check the log file (or console) and correct any errors.'
     aliases: []
     permissions:
-      mctemplate.*:
+      change_me_plugin_name.*:
         description: 'Give access to all commands of McTemplate'
+        default: op
+        children:
+          change_me_plugin_name.reload: true
+      change_me_plugin_name.reload:
+        description: 'reload plugin config files'
+        default: op
