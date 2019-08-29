@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 //TODO [CHANGE_ME] - plugin name + file name
-public final class McTemplate extends JavaPlugin {
+public final class Main extends JavaPlugin {
     // Private static variables
     private static Logger logger;
 

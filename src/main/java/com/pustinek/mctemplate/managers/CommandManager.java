@@ -1,6 +1,6 @@
 package com.pustinek.mctemplate.managers;
 
-import com.pustinek.mctemplate.McTemplate;
+import com.pustinek.mctemplate.Main;
 import com.pustinek.mctemplate.commands.CommandDefault;
 import com.pustinek.mctemplate.commands.CommandExample;
 import org.bukkit.command.Command;
@@ -17,8 +17,9 @@ import java.util.TreeSet;
 public class CommandManager extends Manager implements CommandExecutor, TabCompleter {
 
     private final ArrayList<CommandDefault> commands;
-    private McTemplate plugin;
-    public CommandManager(McTemplate plugin) {
+    private Main plugin;
+
+    public CommandManager(Main plugin) {
 
         commands = new ArrayList<>();
         //ADD: Here you add the commands that you want to use..

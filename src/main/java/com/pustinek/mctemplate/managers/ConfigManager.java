@@ -1,10 +1,10 @@
 package com.pustinek.mctemplate.managers;
 
-import com.pustinek.mctemplate.McTemplate;
+import com.pustinek.mctemplate.Main;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class ConfigManager extends Manager {
-    private final McTemplate plugin;
+    private final Main plugin;
     private FileConfiguration config;
     public static boolean debug = false;
     private String pluginMessagePrefix = "[mc-template]";
@@ -14,7 +14,7 @@ public class ConfigManager extends Manager {
     //Config variables
     private String configVersion;
 
-    public ConfigManager(McTemplate plugin){
+    public ConfigManager(Main plugin) {
 
         this.plugin = plugin;
         reloadConfig();
@@ -31,7 +31,7 @@ public class ConfigManager extends Manager {
             //Start reading from config file
             loadConfig();
         }catch (Exception e){
-            McTemplate.debug(e.getMessage());
+            Main.debug(e.getMessage());
         }
     }
     private void loadConfig() {

@@ -1,12 +1,13 @@
 package com.pustinek.mctemplate.listeners;
 
-import com.pustinek.mctemplate.McTemplate;
+import com.pustinek.mctemplate.Main;
 import org.bukkit.event.Listener;
 
 public class ExampleListener implements Listener {
 
-    private final McTemplate plugin;
-    public ExampleListener(McTemplate plugin){
+    private final Main plugin;
+
+    public ExampleListener(Main plugin) {
         this.plugin = plugin;
     }
 

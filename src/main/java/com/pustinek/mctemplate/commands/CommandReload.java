@@ -1,13 +1,13 @@
 package com.pustinek.mctemplate.commands;
 
-import com.pustinek.mctemplate.McTemplate;
+import com.pustinek.mctemplate.Main;
 import com.pustinek.mctemplate.utils.Permissions;
 import org.bukkit.command.CommandSender;
 
 public class CommandReload extends CommandDefault {
-    private final McTemplate plugin;
+    private final Main plugin;
 
-    public CommandReload(McTemplate plugin) {
+    public CommandReload(Main plugin) {
 
         this.plugin = plugin;
     }
@@ -28,7 +28,7 @@ public class CommandReload extends CommandDefault {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (sender.hasPermission(Permissions.RELOAD))
-            McTemplate.getConfigManager().reloadConfig();
+            Main.getConfigManager().reloadConfig();
 
     }
 }

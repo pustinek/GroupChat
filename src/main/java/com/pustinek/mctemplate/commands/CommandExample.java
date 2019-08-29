@@ -1,7 +1,7 @@
 package com.pustinek.mctemplate.commands;
 
 
-import com.pustinek.mctemplate.McTemplate;
+import com.pustinek.mctemplate.Main;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -9,9 +9,9 @@ import org.bukkit.entity.Player;
 * Example of implemented command
 * */
 public class CommandExample extends CommandDefault {
-    private final McTemplate plugin;
+    private final Main plugin;
 
-    public CommandExample(McTemplate plugin){
+    public CommandExample(Main plugin) {
         this.plugin = plugin;
     }
 

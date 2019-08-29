@@ -2,7 +2,7 @@
 name: change_me_plugin_name
 version: ${project.version}
 #TODO [CHANGE_ME] - change main value
-main: com.pustinek.mctemplate.McTemplate
+main: com.pustinek.mctemplate.Main
 api-version: "1.13"
 authors: [Pustinek]
 description: change_me_description
