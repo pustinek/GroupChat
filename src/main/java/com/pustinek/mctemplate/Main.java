@@ -57,7 +57,7 @@ public final class Main extends JavaPlugin {
      * @param message The message to print
      */
     public static void debug(String message) {
-        if (ConfigManager.debug)
+        if (ConfigManager.isDebug)
             logger.info(message);
     }
 

@@ -3,6 +3,7 @@ package com.pustinek.mctemplate.managers;
 import com.pustinek.mctemplate.Main;
 import com.pustinek.mctemplate.commands.CommandDefault;
 import com.pustinek.mctemplate.commands.CommandExample;
+import com.pustinek.mctemplate.utils.Permissions;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,19 +26,56 @@ public class CommandManager extends Manager implements CommandExecutor, TabCompl
         //ADD: Here you add the commands that you want to use..
         commands.add(new CommandExample(plugin));
 
+
+        plugin.getCommand(Permissions.PLUGIN_NAME).setExecutor(this);
+        plugin.getCommand(Permissions.PLUGIN_NAME).setTabCompleter(this);
+
         // store plugin instance
         this.plugin = plugin;
     }
 
+
+    private void showHelp(CommandSender target) {
+
+        // Add all messages to a list
+        ArrayList<String> messages = new ArrayList<>();
+
+        for (CommandDefault command : commands) {
+            String help = command.getHelp(target);
+            if (help != null && help.length() != 0) {
+                messages.add(help);
+            }
+        }
+
+        for (String message : messages) {
+            Main.messageNoPrefix(target, message);
+        }
+
+
+    }
+
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        return false;
+        boolean executed = false;
+        for (int i = 0; i < commands.size() && !executed; i++) {
+            if (commands.get(i).canExecute(command, args)) {
+                commands.get(i).execute(sender, args);
+                executed = true;
+            }
+        }
+        if (!executed && args.length == 0) {
+            this.showHelp(sender);
+        } else if (!executed) {
+            Main.message(sender, " Command is not valid");
+        }
+        return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> result = new ArrayList<>();
-        if (!sender.hasPermission("moneypouch.tabcomplete")) {
+        if (!sender.hasPermission(Permissions.TAB_COMPLETE)) {
             return result;
         }
         int toCompleteNumber = args.length;

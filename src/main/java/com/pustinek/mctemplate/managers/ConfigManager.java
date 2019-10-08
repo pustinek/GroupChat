@@ -6,7 +6,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 public class ConfigManager extends Manager {
     private final Main plugin;
     private FileConfiguration config;
-    public static boolean debug = false;
+    public static boolean isDebug = true;
     private String pluginMessagePrefix = "[mc-template]";
 
 
@@ -36,6 +36,7 @@ public class ConfigManager extends Manager {
     }
     private void loadConfig() {
         configVersion = config.getString("configVersion");
+        isDebug = config.getBoolean("debug", false);
         pluginMessagePrefix = config.getString("pluginMessagePrefix");
     }
 
