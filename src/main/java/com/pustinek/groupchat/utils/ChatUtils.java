@@ -1,4 +1,4 @@
-package com.pustinek.mctemplate.utils;
+package com.pustinek.groupchat.utils;
 
 import org.bukkit.ChatColor;
 

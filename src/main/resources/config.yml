@@ -1,2 +1,64 @@
+
 configVersion: "1.0"
-pluginMessagePrefix: "[mc-template]"
+debug: true
+plugin_message_prefix: "&f[&5GroupChat&f] "
+
+chat:
+  # prefix -> group_prefix_format -> text
+  # plugin_prefix is the prefix at the front of every group chat
+  prefix: "&f[&5gc&f]&7"
+  # group_prefix_format - is unique to every group
+  group_prefix: "[{group_prefix}]"
+  # default color of the text when sending a message in the group
+  default_color: "&7"
+sql:
+  # SQLite, MySQL are supported databases
+  driver: SQLite
+
+  # Database server address.
+  address: localhost:3306
+  # Database name, username and password.
+  database: 'groupchat'
+  username: ''
+  password: ''
+  table_prefix: 'groupchat_'
+
+  # ...interval in seconds, when the database should be pinged,
+  # to keep the connection alive
+  # You can set this to '0' to disable the ping interval
+  ping_interval: 3600
+
+
+  # Database engine. Only applies to MySQL.
+  engine: InnoDB
+
+  options: 'useSSL=false&serverTimezone=UTC'
+groups:
+  - tier: 0
+    member_limit: 5
+    public: false
+    requirements: []
+  - tier: 1
+    member_limit: 10
+    public: false
+    requirements:
+      - money 50000
+      - permission group.emerald
+      - item diamond 128
+  - tier: 2
+    member_limit: 20
+    public: false
+    requirements:
+      - money 30000
+      - permission group.vip
+      - item diamond 128
+  - tier: 3
+    member_limit: 20
+    public: true
+    requirements:
+      - money 30000
+      - permission group.vip
+      - item diamond 128
+
+
+

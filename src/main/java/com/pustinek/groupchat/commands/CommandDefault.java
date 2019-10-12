@@ -1,4 +1,4 @@
-package com.pustinek.mctemplate.commands;
+package com.pustinek.groupchat.commands;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;

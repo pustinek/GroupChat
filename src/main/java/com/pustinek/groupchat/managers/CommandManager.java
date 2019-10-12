@@ -1,14 +1,12 @@
-package com.pustinek.mctemplate.managers;
+package com.pustinek.groupchat.managers;
 
-import com.pustinek.mctemplate.Main;
-import com.pustinek.mctemplate.commands.CommandDefault;
-import com.pustinek.mctemplate.commands.CommandExample;
-import com.pustinek.mctemplate.utils.Permissions;
+import com.pustinek.groupchat.Main;
+import com.pustinek.groupchat.commands.*;
+import com.pustinek.groupchat.utils.Permissions;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,20 +16,29 @@ import java.util.TreeSet;
 public class CommandManager extends Manager implements CommandExecutor, TabCompleter {
 
     private final ArrayList<CommandDefault> commands;
-    private Main plugin;
+    private final Main plugin;
 
     public CommandManager(Main plugin) {
+        // store plugin instance
+        this.plugin = plugin;
 
         commands = new ArrayList<>();
         //ADD: Here you add the commands that you want to use..
-        commands.add(new CommandExample(plugin));
-
-
+        commands.add(new CommandReload(plugin));
+        commands.add(new CommandStatus(plugin));
+        commands.add(new CommandChat(plugin));
+        commands.add(new CommandCreate(plugin));
+        commands.add(new CommandDelete(plugin));
+        commands.add(new CommandList(plugin));
+        commands.add(new CommandSet(plugin));
+        commands.add(new CommandUnset(plugin));
+        commands.add(new CommandInvite(plugin));
+        commands.add(new CommandManage(plugin));
+        commands.add(new CommandTest(plugin));
         plugin.getCommand(Permissions.PLUGIN_NAME).setExecutor(this);
         plugin.getCommand(Permissions.PLUGIN_NAME).setTabCompleter(this);
 
-        // store plugin instance
-        this.plugin = plugin;
+
     }
 
 
@@ -50,10 +57,7 @@ public class CommandManager extends Manager implements CommandExecutor, TabCompl
         for (String message : messages) {
             Main.messageNoPrefix(target, message);
         }
-
-
     }
-
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -68,6 +72,7 @@ public class CommandManager extends Manager implements CommandExecutor, TabCompl
             this.showHelp(sender);
         } else if (!executed) {
             Main.message(sender, " Command is not valid");
+            plugin.message(sender, "cmd-notValid");
         }
         return true;
     }
@@ -108,6 +113,7 @@ public class CommandManager extends Manager implements CommandExecutor, TabCompl
             result.clear();
             result.addAll(set);
         }
+        //Main.debug("Tabcomplete #" + toCompleteNumber + ", prefix="+ toCompletePrefix + ", alias="+ alias + ", command="+ command.getName() + ", result=" + result.toString());
         return result;
 
     }

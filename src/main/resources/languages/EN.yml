@@ -1,0 +1,90 @@
+action: "[gold][bold]<%0%>[/bold]"
+button: "[bold]<%0%>[/bold]"
+
+command:
+  - "[bold]%0%[/bold]"
+  - "    hover: %lang:action|Use %1%|%"
+  - "    command: %1%"
+
+helpCommand:
+  - "[gold]%0% [gray]-[reset]"
+  - "    hover: %lang:action|Use %0%|%"
+  - "    command: %0%"
+
+
+
+
+
+confirm-yes: " [gray]Click to %lang:command|Confirm|%0%|%[gray], or repeat the command."
+
+cmd-notValid: "That command is not valid, use '/groupchat help' for info."
+cmd-onlyByPlayer: "This command can only be run by a player !"
+
+feature-inTheWork: "This is still in the workings :) "
+
+
+help-header: "Help page, commands that you can execute."
+help-noPermission: "You do not have permission to view the help page."
+help-alias: "Command aliases: /groupchat, /gchat."
+help-create: "%lang:helpCommand|/gchat create|% Create a new group"
+help-delete: "%lang:helpCommand|/gchat delete|% Delete a new group"
+help-invite: "%lang:helpCommand|/gchat invite|% Invite another player to your group"
+help-list: "%lang:helpCommand|/gchat list|% List all the groups that you're the member/owner of"
+help-manage: "%lang:helpCommand|/gchat manage|% Manage settings of your group"
+help-reload: "%lang:helpCommand|/gchat reload|% Reload config files"
+help-set: "%lang:helpCommand|/gchat set|% Set your primary group in which you wish to talk"
+help-unset: "%lang:helpCommand|/gchat unset|% Unset your primary group, to talk in normal chat"
+help-status: "%lang:helpCommand|/gchat status|% View plugin current status"
+help-test: "%lang:helpCommand|/gchat test|% Test random stuff during plugin dev"
+
+create-help: "/gchat create <group_name>"
+create-noPermission: "You don't have permission to create a group."
+create-maxLimit: "Your group limit is reached."
+create-success: "Group was successfully created."
+
+delete-help: "/gchat delete <group_name>"
+delete-noPermission: "You don't have permission to delete a group."
+delete-success: "Group was successfully deleted."
+delete-fail: "Failed to delete the group, something went wrong."
+
+invite-help: "/gchat invite <group_name> <player_name>"
+invite-noPermission: "You don't have permission to invite players to a group."
+invite-playerMember: "That player is already in the group."
+invite-success: "Player was successfully invited to the group."
+invite-fail: "Failed to invite player to the group, something went wrong."
+
+list-help: "/gchat list [true] - value TRUE will show groups you own"
+list-header: "--------Your groups (Member)-------"
+list-noPermission: "You don't have permission to list your groups."
+list-noMember: "You don't seem to be the member of any groups"
+list-noOwner: "You don't seem to be the owner of any groups"
+list-group: "%0%"
+
+manage-help: "/gchat manage <group_name> [prefix/type/name]"
+manage-noPermission: "You don't have permission to manage your groups."
+manage-invalidPrefix: "Invalid prefix - only use alphanumeric, hyphen and underscore ex: prefix_2. Max size (10 char)"
+
+
+set-help: "/gchat set <group_name>"
+set-noPermission: "You don't have permission to set a group"
+set-success: "Successfully [green]set[reset] group as active"
+set-fail: "[red]Failed to set a group, something went wrong."
+
+unset-help: "/gchat unset <group_name>"
+unset-noPermission: "You don't have permission to unset a group"
+unset-success: "Successfully [red]unset[reset] group as active"
+unset-fail: "[red]Failed to unset a group, something went wrong."
+
+status-noPermission: "You don't have permission to view the status of the plugin"
+status-pluginVersion: "plugin version: %0%"
+status-databaseType: "database type: %0%"
+
+
+group-alreadyExists: "group with that name already exists"
+group-notTheOwner: "Can't do that, you're not the owner"
+group-notExistOrNotOwner: "Group with that name doesn't exist or you're not the owner"
+group-invalidName: "&cInvalid group name! you can only use alphanumeric, hyphen and underscore ex: group_name-1"
+
+player-noExist: "Specified player doesn't exist"
+
+

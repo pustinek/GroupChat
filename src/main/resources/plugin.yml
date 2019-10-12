@@ -1,22 +1,36 @@
-#TODO [CHANGE_ME] - replace "change_me_plugin_name" with your plugin name
-name: change_me_plugin_name
+name: GroupChat
 version: ${project.version}
-#TODO [CHANGE_ME] - change main value
-main: com.pustinek.mctemplate.Main
+main: com.pustinek.groupchat.Main
 api-version: "1.13"
 authors: [Pustinek]
-description: change_me_description
+description: "group chat for minecraft servers running Spigot/Paper"
 commands:
-  change_me_plugin_name:
-    description: 'for all the commands use /change_me_plugin_name help'
-    usage: 'change_me_plugin_name has not started correctly, check the log file (or console) and correct any errors.'
-    aliases: []
+  groupchat:
+    description: 'for all the commands use /groupchat help'
+    usage: 'groupchat has not started correctly, check the log file (or console) and correct any errors.'
+    aliases: [gchat]
     permissions:
-      change_me_plugin_name.*:
-        description: 'Give access to all commands of McTemplate'
+      groupchat.*:
+        description: 'Give access to all commands of group chat'
         default: op
         children:
-          change_me_plugin_name.reload: true
-      change_me_plugin_name.reload:
+          groupchat.reload: true
+          groupchat.status: true
+          groupchat.create: true
+          groupchat.manage: true
+          groupchat.list: true
+      groupchat.reload:
         description: 'reload plugin config files'
+        default: op
+      groupchat.status:
+        description: 'Get plugin status'
+        default: op
+      groupchat.create:
+        description: 'Create a group'
+        default: op
+      groupchat.manage:
+        description: 'Manage your group'
+        default: op
+      groupchat.list:
+        description: 'List the groups you own or are the member of'
         default: op

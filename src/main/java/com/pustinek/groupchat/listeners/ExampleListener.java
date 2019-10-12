@@ -1,6 +1,6 @@
-package com.pustinek.mctemplate.listeners;
+package com.pustinek.groupchat.listeners;
 
-import com.pustinek.mctemplate.Main;
+import com.pustinek.groupchat.Main;
 import org.bukkit.event.Listener;
 
 public class ExampleListener implements Listener {

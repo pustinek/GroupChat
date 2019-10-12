@@ -1,6 +1,6 @@
-package com.pustinek.mctemplate.managers;
+package com.pustinek.groupchat.managers;
 
-public class Manager {
+public abstract class Manager {
 
     /**
      * Called at shutdown of the plugin.

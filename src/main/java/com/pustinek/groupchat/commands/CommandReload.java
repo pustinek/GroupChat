@@ -1,7 +1,7 @@
-package com.pustinek.mctemplate.commands;
+package com.pustinek.groupchat.commands;
 
-import com.pustinek.mctemplate.Main;
-import com.pustinek.mctemplate.utils.Permissions;
+import com.pustinek.groupchat.Main;
+import com.pustinek.groupchat.utils.Permissions;
 import org.bukkit.command.CommandSender;
 
 public class CommandReload extends CommandDefault {
@@ -12,16 +12,15 @@ public class CommandReload extends CommandDefault {
         this.plugin = plugin;
     }
 
-    //TODO [CHANGE_ME] - change command prefix/plugin name
     @Override
     public String getCommandStart() {
-        return "mctemplate reload";
+        return "groupchat reload";
     }
 
     @Override
     public String getHelp(CommandSender target) {
         if (target.hasPermission(Permissions.RELOAD))
-            return "/reload - reload configs";
+            return "help-reload";
         return null;
     }
 

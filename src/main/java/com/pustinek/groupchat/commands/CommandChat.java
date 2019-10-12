@@ -1,40 +1,38 @@
-package com.pustinek.mctemplate.commands;
+package com.pustinek.groupchat.commands;
 
-
-import com.pustinek.mctemplate.Main;
+import com.pustinek.groupchat.Main;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-/*
-* Example of implemented command
-* */
-public class CommandExample extends CommandDefault {
+public class CommandChat extends CommandDefault {
+
     private final Main plugin;
 
-    public CommandExample(Main plugin) {
+    public CommandChat(Main plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public String getCommandStart() {
-        return "mctemplate example";
+        return "groupchat chat";
     }
 
     @Override
     public String getHelp(CommandSender target) {
-        return null;
+        return "help-chat";
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
         Player player = (Player) sender;
 
-        if(player == null) {
+
+        plugin.getLogger().info("Chat with me !!");
+
+
+        if (player == null) {
             // Command was triggered via the console,
-            return;
-        }
-        if(!sender.hasPermission("plugin.example")){
-            // The player (Sender) doesn't have the required permissions, notify him
+            Main.message(sender, "cmd-onlyByPlayer");
             return;
         }
 
