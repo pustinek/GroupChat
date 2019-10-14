@@ -38,6 +38,9 @@ help-footer: "===================="
 
 info-help: "/gchat info <group_name>"
 
+reload-success: "You successfully reloaded the config files..."
+
+
 chat-help: "/gchat chat <group_name> [0/1] "
 chat-noPermission: "You don't have permission to chat in groups"
 chat-setSuccess: "Successfully [green]set[reset] [bold]%0%[reset] group"
@@ -58,12 +61,14 @@ invite-noPermission: "You don't have permission to invite players to a group."
 invite-playerMember: "That player is already in the group."
 invite-success: "Player was successfully invited to the group."
 invite-fail: "Failed to invite player to the group, something went wrong."
+invite-notification: "You've just been invited to join the group [dark_purple]%0%[reset]"
 
 #invites-help: "/gchat invites [invited_group] [accept|deny]"
 invites-help: "/gchat invites"
 invites-noPermission: "You don't have permission to view your invites to group"
 invites-acceptSuccess: "You successfully [green]joined[reset] the [bold]%0%[reset] group"
 invites-denySuccess: "You successfully [red]rejected[reset] the [bold]%0%[reset] group invite"
+invites-pending: "You have ([dark_purple]%0%[reset]) group invites pending, use /gchat invites to accept/deny the invite"
 
 
 list-help: "/gchat list [true] - value TRUE will show groups you own"
@@ -92,6 +97,8 @@ group-notExists: "Group '%0%' doesn't exist"
 group-notExistOrNotOwner: "Group with that name doesn't exist or you're not the owner"
 group-notExistOrNotMember: "Group with that name doesn't exist or you're not a member"
 group-invalidName: "&cInvalid group name! you can only use alphanumeric, hyphen and underscore ex: group_name-1"
+
+
 
 player-noExist: "Specified player doesn't exist"
 

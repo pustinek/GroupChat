@@ -26,8 +26,8 @@ public class CommandReload extends CommandDefault {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (sender.hasPermission(Permissions.RELOAD))
+        if (!sender.hasPermission(Permissions.RELOAD)) return;
             Main.getConfigManager().reloadConfig();
-
+        Main.message(sender, "reload-success");
     }
 }

@@ -1,6 +1,7 @@
 package com.pustinek.groupchat;
 
 import com.pustinek.groupchat.listeners.AsyncPlayerChatListener;
+import com.pustinek.groupchat.listeners.BungeeCordMessageListener;
 import com.pustinek.groupchat.managers.*;
 import com.pustinek.groupchat.sql.Database;
 import com.pustinek.groupchat.sql.MySQL;
@@ -65,6 +66,19 @@ public final class Main extends JavaPlugin {
                 Collections.singletonList(configManager.getPluginMessagePrefix()) // Chat prefix to use with Message#prefix(), could of course come from the config file
         );
     }
+
+
+    public void registerBungeecordMessenger() {
+
+        this.getServer().getMessenger().registerOutgoingPluginChannel(
+                this,
+                "GroupChat");
+        this.getServer().getMessenger().registerIncomingPluginChannel(
+                this,
+                "GroupChat",
+                new BungeeCordMessageListener());
+    }
+
 
     /**
      * Print an error to the console.

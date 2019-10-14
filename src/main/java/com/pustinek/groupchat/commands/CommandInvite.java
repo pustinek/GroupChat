@@ -78,7 +78,9 @@ public class CommandInvite extends CommandDefault {
         Main.getInvitesManager().invitePlayerToGroup(playerToInvite.getUniqueId(), player.getUniqueId(), group.getId(), new Callback<GroupInvite>(plugin) {
             @Override
             public void onResult(GroupInvite result) {
+
                 Main.message(sender, "invite-success");
+                Main.message(playerToInvite, "invite-notification", group.getName());
             }
 
             @Override
