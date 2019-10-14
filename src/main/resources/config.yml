@@ -4,11 +4,16 @@ debug: true
 plugin_message_prefix: "&f[&5GroupChat&f] "
 
 chat:
+  # Should the message also be displayed in the console ?
+  show_msg_console: true
+
   # prefix -> group_prefix_format -> text
   # plugin_prefix is the prefix at the front of every group chat
   prefix: "&f[&5gc&f]&7"
+
   # group_prefix_format - is unique to every group
-  group_prefix: "[{group_prefix}]"
+  group_prefix: "&f[&c{group_prefix}&f]"
+
   # default color of the text when sending a message in the group
   default_color: "&7"
 sql:

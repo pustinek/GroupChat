@@ -50,17 +50,17 @@ public class MySQL extends Database {
     @Override
     String getQueryCreateTableGroups() {
 
-        return "CREATE TABLE IF NOT EXISTS " + tableInvites + " ("
-                + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
+        return "CREATE TABLE IF NOT EXISTS " + tableGroups + " ("
+                + "id VARCHAR(36) PRIMARY KEY,"
                 + "name TINYTEXT NOT NULL,"
                 + "owner TINYTEXT NOT NULL,"
-                + "members TINYTEXT NOT NULL,"
-                + "options TINYTEXT NOT NULL)";
+                + "members TEXT NOT NULL,"
+                + "options TEXT NOT NULL)";
     }
 
     @Override
     String getQueryCreateTableInvites() {
-        return "CREATE TABLE IF NOT EXISTS " + tableGroups + " ("
+        return "CREATE TABLE IF NOT EXISTS " + tableInvites + " ("
                 + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
                 + "invitee TINYTEXT NOT NULL,"
                 + "inviter TINYTEXT NOT NULL,"

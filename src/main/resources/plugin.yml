@@ -9,28 +9,70 @@ commands:
     description: 'for all the commands use /groupchat help'
     usage: 'groupchat has not started correctly, check the log file (or console) and correct any errors.'
     aliases: [gchat]
-    permissions:
-      groupchat.*:
-        description: 'Give access to all commands of group chat'
-        default: op
-        children:
-          groupchat.reload: true
-          groupchat.status: true
-          groupchat.create: true
-          groupchat.manage: true
-          groupchat.list: true
-      groupchat.reload:
-        description: 'reload plugin config files'
-        default: op
-      groupchat.status:
-        description: 'Get plugin status'
-        default: op
-      groupchat.create:
-        description: 'Create a group'
-        default: op
-      groupchat.manage:
-        description: 'Manage your group'
-        default: op
-      groupchat.list:
-        description: 'List the groups you own or are the member of'
-        default: op
+permissions:
+  groupchat.*:
+    description: 'Give access to all commands of group chat'
+    default: op
+    children:
+      groupchat.reload: true
+      groupchat.admin.status: true
+      groupchat.admin.delete: true
+      groupchat.admin.manage: true
+      groupchat.use: true
+  groupchat.use:
+    default: false
+    description: 'Give access basic usage commands'
+    children:
+      groupchat.help: true
+      groupchat.tabcomplete: true
+      groupchat.info: true
+      groupchat.create: true
+      groupchat.chat: true
+      groupchat.delete: true
+      groupchat.invite: true
+      groupchat.invites: true
+      groupchat.manage: true
+      groupchat.list: true
+      groupchat.kick: true
+  groupchat.reload:
+    description: 'reload plugin config files'
+    default: op
+  groupchat.admin.status:
+    description: 'get basic plugin stats of the plugin'
+    default: op
+  groupchat.admin.delete:
+    description: 'get basic plugin stats of the plugin'
+    default: op
+  groupchat.admin.manage:
+    description: 'Manage another players group'
+    default: op
+  groupchat.tabcomplete:
+    description: 'Tab complete commands'
+    default: false
+  groupchat.info:
+    description: 'Get group info'
+    default: false
+  groupchat.create:
+    description: 'Create a group'
+    default: false
+  groupchat.chat:
+    description: 'Chat in a group'
+    default: true
+  groupchat.delete:
+    description: 'Delete your own group'
+    default: false
+  groupchat.invite:
+    description: 'Invite player to your group'
+    default: false
+  groupchat.invites:
+    description: 'View your invites to groups'
+    default: false
+  groupchat.manage:
+    description: 'Manage your group'
+    default: false
+  groupchat.kick:
+    description: 'Kick a player from your group'
+    default: false
+  groupchat.list:
+    description: "List the groups you're the owner|member of"
+    default: false

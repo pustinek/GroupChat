@@ -1,6 +1,5 @@
 package com.pustinek.groupchat.models;
 
-import com.pustinek.groupchat.Main;
 import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
@@ -54,15 +53,13 @@ public class Group implements Cloneable {
 
 
     private void parseGroupOptions(String options) {
-        Main.debug("options ready to be parse --> " + options);
+        //Main.debug("options ready to be parse --> " + options);
         String[] keyVals = options.split(",");
         for (String keyVal : keyVals) {
             String[] parts = keyVal.split(":", 2);
-            Main.debug("[0]: " + parts[0] + "...[1]: " + parts[1]);
             if (parts[0].equals("prefix")) {
                 this.prefix = parts[1];
             } else if (parts[0].equals("type")) {
-                Main.debug("type found with value" + parts[1]);
             }
         }
 
@@ -102,8 +99,20 @@ public class Group implements Cloneable {
         this.members = members;
     }
 
+    public void addMember(UUID playerID) {
+        members.add(playerID);
+    }
+
+    public void removeMember(UUID playerID) {
+        members.remove(playerID);
+    }
+
     public int getType() {
         return type;
+    }
+
+    public int getTier() {
+        return tier;
     }
 
     /**
@@ -134,14 +143,14 @@ public class Group implements Cloneable {
         return sb.toString();
     }
 
-    public enum ManagableOptions {
+    public enum ManageableOptions {
         PREFIX("prefix"),
         TYPE("type"),
         NAME("name");
 
         private String value;
 
-        private ManagableOptions(String value) {
+        private ManageableOptions(String value) {
             this.value = value;
         }
 

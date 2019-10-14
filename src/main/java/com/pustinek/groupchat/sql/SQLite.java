@@ -82,7 +82,7 @@ public class SQLite extends Database {
     @Override
     String getQueryCreateTableGroups() {
         return "CREATE TABLE IF NOT EXISTS " + tableGroups + " ("
-                + "id STRING PRIMARY KEY NOT NULL,"
+                + "id VARCHAR(36) PRIMARY KEY NOT NULL,"
                 + "name TINYTEXT NOT NULL,"
                 + "owner TINYTEXT NOT NULL,"
                 + "members TINYTEXT NOT NULL,"

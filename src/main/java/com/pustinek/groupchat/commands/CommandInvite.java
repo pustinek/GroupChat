@@ -2,6 +2,7 @@ package com.pustinek.groupchat.commands;
 
 import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.models.Group;
+import com.pustinek.groupchat.models.GroupInvite;
 import com.pustinek.groupchat.utils.Callback;
 import com.pustinek.groupchat.utils.Permissions;
 import org.bukkit.Bukkit;
@@ -57,7 +58,7 @@ public class CommandInvite extends CommandDefault {
 
 
         Player playerToInvite = Bukkit.getPlayer(username);
-        Group group = Main.getGroupManager().getGroup(groupName);
+        Group group = Main.getGroupManager().getGroupClone(groupName);
 
 
         if (playerToInvite == null) {
@@ -68,15 +69,15 @@ public class CommandInvite extends CommandDefault {
             Main.message(sender, "group-notExistOrNotOwner");
             return;
         }
-        if (group.getMembers().contains(player.getUniqueId())) {
+        if (group.getMembers().contains(playerToInvite.getUniqueId())) {
             Main.message(sender, "invite-playerMember");
             return;
         }
 
 
-        Main.getGroupManager().invitePlayerToGroup(group.getId(), playerToInvite.getUniqueId(), player.getUniqueId(), new Callback<Integer>(plugin) {
+        Main.getInvitesManager().invitePlayerToGroup(playerToInvite.getUniqueId(), player.getUniqueId(), group.getId(), new Callback<GroupInvite>(plugin) {
             @Override
-            public void onResult(Integer result) {
+            public void onResult(GroupInvite result) {
                 Main.message(sender, "invite-success");
             }
 
@@ -86,6 +87,7 @@ public class CommandInvite extends CommandDefault {
                 super.onError(throwable);
             }
         });
+
     }
 
     @Override
@@ -99,9 +101,16 @@ public class CommandInvite extends CommandDefault {
         }
 
         if (toComplete == 2) {
-            if (sender.hasPermission(Permissions.GROUP_SET)) {
-                for (Group group : Main.getGroupManager().getMemberGroups(player.getUniqueId())) {
+            if (sender.hasPermission(Permissions.GROUP_INVITE)) {
+                for (Group group : Main.getGroupManager().getOwnerGroups(player.getUniqueId())) {
                     result.add(group.getName());
+                }
+            }
+        }
+        if (toComplete == 3) {
+            if (sender.hasPermission(Permissions.GROUP_INVITE)) {
+                for (Player onlinePlayers : Bukkit.getOnlinePlayers()) {
+                    result.add(onlinePlayers.getName());
                 }
             }
         }

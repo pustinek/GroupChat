@@ -12,12 +12,22 @@ import java.util.stream.Collectors;
 
 public class GroupManager extends Manager {
     private static HashMap<UUID, Group> groups = new HashMap<>(); /*Group UUID, Group*/
-    private static HashMap<UUID, UUID> groupInvites = new HashMap<>(); /*invited player UUID, group UUID*/
+    private static Map<UUID, List<UUID>> groupInvites = new HashMap<>(); /*invited player UUID, group UUID*/
     private final Main plugin;
 
+    private static Map<Integer, HashMap<UUID, UUID>> gInvites = new HashMap<>();
 
     public GroupManager(Main plugin) {
         this.plugin = plugin;
+    }
+
+
+    @Override
+    public void shutdown() {
+        Main.debug("Cleaning up GroupManager...");
+        groups = null;
+        groupInvites = null;
+        gInvites = null;
     }
 
 
@@ -128,6 +138,11 @@ public class GroupManager extends Manager {
     }
 
 
+    public List<UUID> getPlayerInvites(UUID playerID) {
+        return groupInvites.get(playerID);
+    }
+
+
     /**
      * Invite player to specified group
      *
@@ -140,7 +155,7 @@ public class GroupManager extends Manager {
             @Override
             public void onResult(Integer result) {
                 if (result == 1) {
-                    groupInvites.put(invitee, groupID);
+                    groupInvites.computeIfAbsent(invitee, k -> new ArrayList<>()).add(groupID);
                 }
                 super.onResult(result);
             }
@@ -163,48 +178,29 @@ public class GroupManager extends Manager {
     public void createGroup(String name, UUID owner) {
         UUID id = UUID.randomUUID();
         Group group = new Group(id, owner, name, name, new ArrayList<>(Collections.singletonList(owner)));
-        groups.put(id, group);
+
 
         Main.debug("Created group with name (" + group.getName() + ")");
 
-        Main.getDatabase().addGroup(group);
-
-    }
-
-    /**
-     * (Re)load invites from the database and save them to static variable
-     *
-     * @param callback return number of loaded invites from database
-     */
-    public void reloadInvites(final Callback<Integer> callback) {
-        Main.debug("Reloading invites...");
-
-        Main.getDatabase().connect(new Callback<Integer>(plugin) {
+        Main.getDatabase().addGroup(group, new Callback<Group>(plugin) {
             @Override
-            public void onResult(Integer result) {
-                Main.getDatabase().getInvites(new Callback<HashMap<UUID, UUID>>(plugin) {
-                    @Override
-                    public void onResult(HashMap<UUID, UUID> result) {
-                        groupInvites = result;
-                        if (callback != null) callback.callSyncResult(result.size());
-                    }
-
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        if (callback != null) callback.callSyncError(throwable);
-                    }
-                });
+            public void onResult(Group result) {
+                Main.debug("Successfully created group");
+                groups.put(id, result);
+                super.onResult(result);
             }
 
             @Override
             public void onError(Throwable throwable) {
-                if (callback != null) callback.callSyncError(throwable);
+                Main.error("Something went wrong when creating a group");
+                Main.error(throwable);
+                super.onError(throwable);
             }
         });
 
-
     }
+
+
 
     /**
      * (Re)load groups from the database and save them to static variable
@@ -240,8 +236,6 @@ public class GroupManager extends Manager {
                 if (callback != null) callback.callSyncError(throwable);
             }
         });
-
-
     }
 
     /**
@@ -272,6 +266,24 @@ public class GroupManager extends Manager {
 
     }
 
+    public void updateGroup(Group newGroup, Callback<Integer> callback) {
+        Main.getDatabase().addGroup(newGroup, new Callback<Group>(plugin) {
+            @Override
+            public void onResult(Group result) {
+                groups.put(newGroup.getId(), newGroup);
+                super.onResult(result);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                super.onError(throwable);
+            }
+        });
+
+
+    }
+
+
     public void changeGroupPrefix(UUID id, String prefix) {
         Main.debug("Prefix value: " + prefix);
         Group group = groups.get(id);
@@ -279,27 +291,53 @@ public class GroupManager extends Manager {
             Group groupClone = new Group(group);
             Main.debug("Changing prefix from  " + group.getPrefix() + " to " + groupClone.getPrefix());
             groupClone.setPrefix(prefix);
-            Main.getDatabase().updateGroupOptions(groupClone, new Callback<UUID>(plugin) {
+            Main.getDatabase().addGroup(groupClone, new Callback<Group>(plugin) {
                 @Override
-                public void onResult(UUID result) {
+                public void onResult(Group result) {
                     Main.debug("Successfully changed group prefix to " + groupClone.getPrefix());
                     group.setPrefix(prefix);
-                    super.onResult(result);
                 }
 
                 @Override
                 public void onError(Throwable throwable) {
                     Main.error("Something went wrong when updating the prefix of the group");
                     Main.error(throwable);
-
-                    super.onError(throwable);
                 }
             });
 
         }
+    }
+
+    /**
+     * Kick player from group
+     *
+     * @param groupID  UUID of the group
+     * @param playerID UUID of the player to kick
+     */
+    public void kickPlayer(UUID groupID, UUID playerID) {
+        Group group = getGroupClone(groupID);
+        group.removeMember(playerID);
+
+        Main.getDatabase().addGroup(group, new Callback<Group>(plugin) {
+            @Override
+            public void onResult(Group result) {
+                Main.debug("Player was successfully kicked from the group");
+                groups.put(groupID, group);
+                super.onResult(result);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                Main.debug("Failed to kick player from the group");
+                super.onError(throwable);
+            }
+        });
 
 
     }
+
+
+
 
     public void changeGroupName(UUID id, String name) {
         //TODO: create a name validator

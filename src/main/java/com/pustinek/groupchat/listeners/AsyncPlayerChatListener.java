@@ -35,25 +35,25 @@ public class AsyncPlayerChatListener implements Listener {
         Group group = Main.getGroupManager().getGroupClone(groupId);
         String chatPrefix = Main.getConfigManager().getChatPrefix();
         String groupFormatPrefix = Main.getConfigManager().getGroupFormatPrefix();
-        Main.debug("groupPrefixFormat:  " + groupFormatPrefix);
+        String chatColor = Main.getConfigManager().getDefaultChatColor();
 
         String groupPrefix = groupFormatPrefix.replace("{group_prefix}", group.getPrefix());
 
-        TextComponent cmp = new TextComponent(ChatUtils.chatColor(chatPrefix + groupPrefix + event.getMessage()));
+        TextComponent cmp = new TextComponent(ChatUtils.chatColor(chatPrefix + groupPrefix + chatColor + " " + event.getMessage()));
 
         String hoverText = "Name: " + group.getName() + "\n" +
                 "Members: " + group.getMembers().size() + "\n" +
                 "Click to toggle this group";
 
         cmp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hoverText).create()));
-        cmp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/groupchat set " + group.getName()));
+        cmp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/groupchat chat " + group.getName()));
         group.getMembers().forEach((uuid -> {
             Player groupMember = Bukkit.getPlayer(uuid);
             if (groupMember == null || !groupMember.isOnline()) return;
             groupMember.spigot().sendMessage(cmp);
         }));
 
-
+        System.out.println(cmp.getText());
         event.setCancelled(true);
 
     }

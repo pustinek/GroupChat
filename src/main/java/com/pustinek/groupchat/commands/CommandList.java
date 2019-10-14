@@ -24,7 +24,7 @@ public class CommandList extends CommandDefault {
 
     @Override
     public String getHelp(CommandSender target) {
-        if (target.hasPermission(Permissions.RELOAD))
+        if (target.hasPermission(Permissions.GROUP_LIST))
             return "help-list";
         return null;
     }

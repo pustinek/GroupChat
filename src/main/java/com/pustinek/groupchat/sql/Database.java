@@ -2,6 +2,7 @@ package com.pustinek.groupchat.sql;
 
 import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.models.Group;
+import com.pustinek.groupchat.models.GroupInvite;
 import com.pustinek.groupchat.utils.Callback;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -96,7 +97,7 @@ public abstract class Database {
     }
 
 
-    public void addGroup(final Group group) {
+    public void addGroup(final Group group, Callback<Group> callback) {
         final String query = "REPLACE INTO " + tableGroups + "(id, name, owner, members, options) VALUES(?,?,?,?,?)";
 
         new BukkitRunnable() {
@@ -112,7 +113,14 @@ public abstract class Database {
                     ps.setString(i + 4, group.getMembersAsString());
                     ps.setString(i + 5, group.getOptionsAsString());
                     ps.executeUpdate();
+
+                    if (callback != null) {
+                        callback.callSyncResult(group);
+                    }
                 } catch (SQLException ex) {
+                    if (callback != null) {
+                        callback.callSyncError(ex);
+                    }
                     Main.error("Failed to add group to database");
                     Main.error(ex);
                 }
@@ -121,6 +129,7 @@ public abstract class Database {
     }
 
     public void addInvite(final UUID invtee, final UUID inviter, final UUID groupID, final Callback<Integer> callback) {
+        //TODO: create an id for the item, so it's easier to remove later
         final String query = "REPLACE INTO " + tableInvites + "(invitee, inviter, groupID) VALUES(?,?,?)";
 
         new BukkitRunnable() {
@@ -151,6 +160,72 @@ public abstract class Database {
         }.runTaskAsynchronously(plugin);
 
     }
+
+    public void addInviteX(GroupInvite invite, final Callback<Integer> callback) {
+        //TODO: create an id for the item, so it's easier to remove later
+        final String query = "REPLACE INTO " + tableInvites + "(invitee, inviter, groupID) VALUES(?,?,?)";
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try (Connection con = dataSource.getConnection();
+                     PreparedStatement ps = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
+                ) {
+                    int i = 0;
+                    ps.setString(i + 1, invite.getInviteeID().toString());
+                    ps.setString(i + 2, invite.getInviterID().toString());
+                    ps.setString(i + 3, invite.getGroupID().toString());
+                    ps.executeUpdate();
+                    ResultSet rs = ps.getGeneratedKeys();
+
+                    int id = rs.getInt(1);
+
+
+                    if (callback != null) {
+                        callback.callSyncResult(id);
+                    }
+                } catch (SQLException ex) {
+                    if (callback != null) {
+                        callback.callSyncError(ex);
+                    }
+                    Main.error("Failed to add invite to database");
+                    Main.error(ex);
+                }
+
+
+            }
+        }.runTaskAsynchronously(plugin);
+
+    }
+
+    public void removeInvite(final int id, final Callback<Integer> callback) {
+        final String query = "DELETE FROM " + tableInvites + " WHERE id = ?";
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try (Connection con = dataSource.getConnection();
+                     PreparedStatement ps = con.prepareStatement(query)) {
+
+                    ps.setInt(1, id);
+                    ps.executeUpdate();
+                    Main.debug("Removing group invite from database (#" + id + ")");
+                    if (callback != null) {
+                        callback.callSyncResult(id);
+                    }
+                } catch (SQLException ex) {
+                    if (callback != null) {
+                        callback.callSyncError(ex);
+                    }
+                    Main.error("Failed to remove group-invite from the database");
+                    Main.error(ex);
+                }
+            }
+        }.runTaskAsynchronously(plugin);
+
+
+    }
+
 
 
     /**
@@ -273,9 +348,17 @@ public abstract class Database {
 
     }
 
-
-    public void getInvites(final Callback<HashMap<UUID, UUID>> callback) {
-        HashMap<UUID, UUID> invitesMap = new HashMap<>();
+    /**
+     * Get all invites from the database
+     *
+     * @param callback Callback that - if succeeded - returns a
+     *                 map of all invites (as
+     *                 {@code Map<UUID, List<UUID>})
+     */
+    public void getInvites(final Callback<ArrayList<GroupInvite>> callback) {
+        /*player UUID, List of groupIDs*/
+        //Map<UUID, List<UUID>> invites = new HashMap<>();
+        ArrayList<GroupInvite> invites = new ArrayList<>();
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -285,15 +368,18 @@ public abstract class Database {
                     ResultSet rs = ps.executeQuery();
 
                     while (rs.next()) {
+                        Integer id = rs.getInt("id");
                         UUID invitee = UUID.fromString(rs.getString("invitee"));
+                        UUID inviter = UUID.fromString(rs.getString("inviter"));
                         UUID groupID = UUID.fromString(rs.getString("groupID"));
 
-                        /*invited player UUID, group UUID*/
-                        invitesMap.put(invitee, groupID);
+                        GroupInvite groupInvite = new GroupInvite(id, groupID, invitee, inviter, null);
+
+                        invites.add(groupInvite);
                     }
 
                     if (callback != null) {
-                        callback.callSyncResult(invitesMap);
+                        callback.callSyncResult(invites);
                     }
                 } catch (SQLException ex) {
                     if (callback != null) {
@@ -304,13 +390,13 @@ public abstract class Database {
                 }
             }
         }.runTaskAsynchronously(plugin);
-
-
     }
 
-    private void disconnect() {
+
+    public void disconnect() {
         if (dataSource != null) {
             dataSource.close();
+            dataSource = null;
         }
     }
 

@@ -20,12 +20,15 @@ public class CommandTest extends CommandDefault {
 
     @Override
     public String getHelp(CommandSender target) {
-        return "help-test";
+        if (target.isOp())
+            return "help-test";
+        return null;
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
 
+        if (!sender.isOp()) return;
 
         if (args.length < 2) {
             return;

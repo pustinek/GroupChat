@@ -16,6 +16,7 @@ public class ConfigManager extends Manager {
 
     private String chatPrefix = "";
     private String groupFormatPrefix = "";
+    private String defaultChatColor = "&f";
 
 
 
@@ -83,6 +84,7 @@ public class ConfigManager extends Manager {
 
         chatPrefix = section.getString("prefix");
         groupFormatPrefix = section.getString("group_prefix", "[{group_prefix}]");
+        defaultChatColor = section.getString("default_color", "&7");
 
     }
 
@@ -102,6 +104,7 @@ public class ConfigManager extends Manager {
         return databaseConfig;
     }
 
-
-
+    public String getDefaultChatColor() {
+        return defaultChatColor;
+    }
 }

@@ -16,12 +16,15 @@ public class CommandStatus extends CommandDefault {
 
     @Override
     public String getCommandStart() {
+
         return "groupchat status";
     }
 
     @Override
     public String getHelp(CommandSender target) {
-        return "help-status";
+        if (target.hasPermission(Permissions.PLUGIN_STATUS))
+            return "help-status";
+        return null;
     }
 
     @Override

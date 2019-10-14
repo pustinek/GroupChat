@@ -27,7 +27,9 @@ public class CommandManage extends CommandDefault {
 
     @Override
     public String getHelp(CommandSender target) {
-        return "help-manage";
+        if (target.hasPermission(Permissions.GROUP_MANAGE))
+            return "help-manage";
+        return null;
     }
 
     @Override
@@ -91,7 +93,7 @@ public class CommandManage extends CommandDefault {
                 result.add(group.getName());
             }
         } else if (toComplete == 3) {
-            for (Group.ManagableOptions option : Group.ManagableOptions.values()) {
+            for (Group.ManageableOptions option : Group.ManageableOptions.values()) {
                 result.add(option.getValue());
             }
         }

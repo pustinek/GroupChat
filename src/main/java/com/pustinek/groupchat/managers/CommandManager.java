@@ -27,13 +27,14 @@ public class CommandManager extends Manager implements CommandExecutor, TabCompl
         commands.add(new CommandReload(plugin));
         commands.add(new CommandStatus(plugin));
         commands.add(new CommandChat(plugin));
+        commands.add(new CommandInfo(plugin));
         commands.add(new CommandCreate(plugin));
         commands.add(new CommandDelete(plugin));
         commands.add(new CommandList(plugin));
-        commands.add(new CommandSet(plugin));
-        commands.add(new CommandUnset(plugin));
         commands.add(new CommandInvite(plugin));
+        commands.add(new CommandInvites(plugin));
         commands.add(new CommandManage(plugin));
+        commands.add(new CommandKick(plugin));
         commands.add(new CommandTest(plugin));
         plugin.getCommand(Permissions.PLUGIN_NAME).setExecutor(this);
         plugin.getCommand(Permissions.PLUGIN_NAME).setTabCompleter(this);
@@ -53,7 +54,8 @@ public class CommandManager extends Manager implements CommandExecutor, TabCompl
                 messages.add(help);
             }
         }
-
+        messages.add(0, "help-header");
+        messages.add("help-footer");
         for (String message : messages) {
             Main.messageNoPrefix(target, message);
         }

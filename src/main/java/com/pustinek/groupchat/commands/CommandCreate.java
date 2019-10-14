@@ -25,7 +25,9 @@ public class CommandCreate extends CommandDefault {
 
     @Override
     public String getHelp(CommandSender target) {
-        return "help-create";
+        if (target.hasPermission(Permissions.GROUP_CREATE))
+            return "help-create";
+        return null;
     }
 
     @Override
@@ -69,13 +71,10 @@ public class CommandCreate extends CommandDefault {
             Main.debug(sender.getName() + " tried to create a group with invalid name (" + groupName + ")");
         }
 
+        //TODO: implement a call callback if it was successfull
         Main.getGroupManager().createGroup(groupName, player.getUniqueId());
 
         Main.message(sender, "create-success");
-
-
-        //TODO: check player limits
-
 
 
 
