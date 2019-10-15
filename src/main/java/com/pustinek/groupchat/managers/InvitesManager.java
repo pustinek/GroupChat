@@ -67,14 +67,20 @@ public class InvitesManager extends Manager {
      * @param inviterID UUID of the player that invited the player
      * @param groupID   UUID of the group that the player was invited to
      */
-    public void invitePlayerToGroup(UUID inviteeID, UUID inviterID, UUID groupID, Callback<GroupInvite> callback) {
+    public void invitePlayerToGroup(UUID inviteeID, UUID inviterID, UUID groupID, Boolean addToDB, Callback<GroupInvite> callback) {
         GroupInvite invite = new GroupInvite(groupID, inviteeID, inviterID);
+
+        if (!addToDB) {
+            groupInvites.add(invite);
+            return;
+        }
 
         Main.getDatabase().addInviteX(invite, new Callback<Integer>(plugin) {
             @Override
             public void onResult(Integer result) {
                 invite.setId(result);
                 groupInvites.add(invite);
+                Main.getRedisManager().addInvitePublish(invite);
                 if (callback != null) {
                     callback.callSyncResult(invite);
                 }
@@ -97,8 +103,17 @@ public class InvitesManager extends Manager {
      * @param invite         Object of the invite
      * @param inviteAccepted true - if player accepted and wants to join the group, else false
      */
-    public void respondToGroupInvite(GroupInvite invite, Boolean inviteAccepted) {
+    public void respondToGroupInvite(GroupInvite invite, Boolean inviteAccepted, Boolean removeInviteFromDatabase) {
         //TODO: remove entry from DB and local map
+
+        if (!removeInviteFromDatabase) {
+            Main.debug("Invite should be removed !!");
+            Main.debug("invite->groupID: " + invite.getGroupID());
+            Main.debug("invite->InviteeID: " + invite.getInviteeID());
+            Boolean wasRemoved = groupInvites.remove(invite);
+            Main.debug("invite removed -> " + wasRemoved);
+            return;
+        }
 
         Main.getDatabase().removeInvite(invite.getId(), new Callback<Integer>(plugin) {
             @Override
@@ -107,8 +122,9 @@ public class InvitesManager extends Manager {
                 if (inviteAccepted) {
                     Group group = Main.getGroupManager().getGroupClone(invite.getGroupID());
                     group.addMember(invite.getInviteeID());
-                    Main.getGroupManager().updateGroup(group, null);
+                    Main.getGroupManager().updateGroup(group, true);
                 }
+                Main.getRedisManager().responseToGroupInvitePublish(invite, inviteAccepted);
                 super.onResult(result);
             }
 

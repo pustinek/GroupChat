@@ -7,19 +7,16 @@ chat:
   # Should the message also be displayed in the console ?
   show_msg_console: true
 
-  # prefix -> group_prefix_format -> text
-  # plugin_prefix is the prefix at the front of every group chat
-  prefix: "&f[&5gc&f]&7"
+  #Available parameters:
+  # {group.prefix} -> prefix that the group uses
+  # {group.name} -> prefix that the group uses
+  # {user.name} -> name of the user that sent the message
+  # {user.displayName} -> display name of the user that sent the message
+  chat_prefix: "&f[&5groupchat&f] &f[&c{group.prefix}&f] {user.displayName} : &7"
 
-  # group_prefix_format - is unique to every group
-  group_prefix: "&f[&c{group_prefix}&f]"
-
-  # default color of the text when sending a message in the group
-  default_color: "&7"
 sql:
   # SQLite, MySQL are supported databases
   driver: SQLite
-
   # Database server address.
   address: localhost:3306
   # Database name, username and password.
@@ -33,11 +30,25 @@ sql:
   # You can set this to '0' to disable the ping interval
   ping_interval: 3600
 
-
   # Database engine. Only applies to MySQL.
   engine: InnoDB
 
   options: 'useSSL=false&serverTimezone=UTC'
+
+sync:
+  server: lobby
+  enabled: true
+  # Here are all the settings used for REDIS server, if you want a smooth
+  # communication of the plugin across BungeeCord servers, this needs to be setup properly.
+  # This only works if the sql == MySQL !
+  ip: localhost
+  port: 6379
+  username: ""
+  password: ""
+  message_channel: "mc_GroupChat" # this value should be the same across server config files
+
+
+
 groups:
   - tier: 0
     member_limit: 5

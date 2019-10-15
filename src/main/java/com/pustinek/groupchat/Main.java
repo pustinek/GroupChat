@@ -1,8 +1,11 @@
 package com.pustinek.groupchat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.pustinek.groupchat.listeners.AsyncPlayerChatListener;
-import com.pustinek.groupchat.listeners.BungeeCordMessageListener;
+import com.pustinek.groupchat.listeners.PlayerJoinListener;
 import com.pustinek.groupchat.managers.*;
+import com.pustinek.groupchat.models.RedisConfig;
 import com.pustinek.groupchat.sql.Database;
 import com.pustinek.groupchat.sql.MySQL;
 import com.pustinek.groupchat.sql.SQLite;
@@ -15,6 +18,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,9 +41,16 @@ public final class Main extends JavaPlugin {
     private static ChatManager chatManager = null;
     private static GUIManager guiManager = null;
     private static InventoryManager inventoryManager = null;
+    public static Gson gson = null;
+    public static ObjectMapper mapper = null;
+    private static RedisManager redisManager = null;
+
+
+
+
 
     private static Database database;
-
+    private static JedisPool jedisPool;
     // General variables:
 
 
@@ -46,38 +59,12 @@ public final class Main extends JavaPlugin {
         return database;
     }
 
-    @Override
-    public void onEnable() {
-        // load logger
-        logger = this.getLogger();
-        // Plugin startup logic
-        logger.info(" onEnable");
-        //load managers
-        loadManagers();
-        registerListeners();
-        initDatabase();
-        initializeGroups();
-
-        LanguageManager languageManager = new LanguageManager(
-                this,                                  // The plugin (used to get the languages bundled in the jar file)
-                "languages",                           // Folder where the languages are stored
-                getConfig().getString("language"),     // The language to use indicated by the plugin user
-                "EN",                                  // The default language, expected to be shipped with the plugin and should be complete, fills in gaps in the user-selected language
-                Collections.singletonList(configManager.getPluginMessagePrefix()) // Chat prefix to use with Message#prefix(), could of course come from the config file
-        );
+    public static RedisManager getRedisManager() {
+        return redisManager;
     }
 
 
-    public void registerBungeecordMessenger() {
 
-        this.getServer().getMessenger().registerOutgoingPluginChannel(
-                this,
-                "GroupChat");
-        this.getServer().getMessenger().registerIncomingPluginChannel(
-                this,
-                "GroupChat",
-                new BungeeCordMessageListener());
-    }
 
 
     /**
@@ -114,6 +101,15 @@ public final class Main extends JavaPlugin {
 
     public static InventoryManager getInventoryManager() {
         return inventoryManager;
+    }
+
+    public static JedisPool getJedisPool() {
+        return jedisPool;
+    }
+
+    public static Jedis createRedisInstance() {
+        RedisConfig redisConfig = configManager.getRedisConfig();
+        return new Jedis(redisConfig.getIp(), redisConfig.getPort());
     }
 
     /**
@@ -186,6 +182,35 @@ public final class Main extends JavaPlugin {
 
     }
 
+    @Override
+    public void onEnable() {
+        // load logger
+        logger = this.getLogger();
+        // Plugin startup logic
+        logger.info(" onEnable");
+        //load managers
+        loadManagers();
+        registerListeners();
+        initDatabase();
+        initializeGroups();
+        initializeJedisPool();
+
+
+        redisManager.subscribe();
+
+
+        gson = new Gson();
+        mapper = new ObjectMapper();
+
+        LanguageManager languageManager = new LanguageManager(
+                this,                                  // The plugin (used to get the languages bundled in the jar file)
+                "languages",                           // Folder where the languages are stored
+                getConfig().getString("language"),     // The language to use indicated by the plugin user
+                "EN",                                  // The default language, expected to be shipped with the plugin and should be complete, fills in gaps in the user-selected language
+                Collections.singletonList(configManager.getPluginMessagePrefix()) // Chat prefix to use with Message#prefix(), could of course come from the config file
+        );
+    }
+
     private void loadManagers() {
         configManager = new ConfigManager(this);
         managers.add(configManager);
@@ -199,15 +224,12 @@ public final class Main extends JavaPlugin {
         managers.add(chatManager);
         guiManager = new GUIManager(this);
         managers.add(guiManager);
+        redisManager = new RedisManager(this);
+        managers.add(redisManager);
+
 
         inventoryManager = new InventoryManager(this);
         inventoryManager.init();
-
-    }
-
-    private void registerListeners() {
-        PluginManager pm = Bukkit.getPluginManager();
-        pm.registerEvents(new AsyncPlayerChatListener(this), this);
 
     }
 
@@ -261,6 +283,19 @@ public final class Main extends JavaPlugin {
             logger.info("Using database type: SQLite");
             database = new SQLite(this);
         }
+    }
+
+    private void registerListeners() {
+        PluginManager pm = Bukkit.getPluginManager();
+        pm.registerEvents(new AsyncPlayerChatListener(this), this);
+        pm.registerEvents(new PlayerJoinListener(), this);
+    }
+
+    public void initializeJedisPool() {
+        RedisConfig redisConfig = configManager.getRedisConfig();
+        jedisPool = new JedisPool(
+                new JedisPoolConfig(), redisConfig.getIp(), redisConfig.getPort()
+        );
     }
 
 

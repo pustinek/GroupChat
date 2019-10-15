@@ -92,7 +92,7 @@ public class CommandKick extends CommandDefault {
 
         Main.getGroupManager().kickPlayer(group.getId(), playerToKick.getUniqueId());
 
-        Main.message(sender, "kick-success", playerToKick, groupName);
+        Main.message(sender, "kick-success", playerToKick.getName(), groupName);
 
     }
 

@@ -54,8 +54,10 @@ public class CommandManager extends Manager implements CommandExecutor, TabCompl
                 messages.add(help);
             }
         }
-        messages.add(0, "help-header");
-        messages.add("help-footer");
+        if (messages.size() > 0) {
+            messages.add(0, "help-header");
+            messages.add("help-footer");
+        }
         for (String message : messages) {
             Main.messageNoPrefix(target, message);
         }

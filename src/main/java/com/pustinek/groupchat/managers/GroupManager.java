@@ -4,7 +4,6 @@ import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.models.Group;
 import com.pustinek.groupchat.utils.Callback;
 import com.pustinek.groupchat.utils.StreamUtils;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -12,38 +11,22 @@ import java.util.stream.Collectors;
 
 public class GroupManager extends Manager {
     private static HashMap<UUID, Group> groups = new HashMap<>(); /*Group UUID, Group*/
-    private static Map<UUID, List<UUID>> groupInvites = new HashMap<>(); /*invited player UUID, group UUID*/
     private final Main plugin;
-
-    private static Map<Integer, HashMap<UUID, UUID>> gInvites = new HashMap<>();
 
     public GroupManager(Main plugin) {
         this.plugin = plugin;
     }
 
-
     @Override
     public void shutdown() {
         Main.debug("Cleaning up GroupManager...");
         groups = null;
-        groupInvites = null;
-        gInvites = null;
     }
 
 
     //===================================================
     public HashMap<UUID, Group> getGroups() {
         return groups;
-    }
-
-    /**
-     * Get group by its ID
-     *
-     * @param groupID name of the group
-     * @return single matching group
-     */
-    public Group getGroup(UUID groupID) {
-        return groups.get(groupID);
     }
 
     public Group getGroupClone(UUID groupID) {
@@ -76,11 +59,8 @@ public class GroupManager extends Manager {
      * @return List of found groups
      */
     public List<Group> getOwnerGroups(UUID ownerUUID) {
-        List<Group> x = groups.values().stream().filter(group -> group.getOwner().equals(ownerUUID)
+        return groups.values().stream().filter(group -> group.getOwner().equals(ownerUUID)
         ).collect(Collectors.toList());
-
-        return x;
-
     }
 
     /**
@@ -123,51 +103,6 @@ public class GroupManager extends Manager {
         return group;
     }
 
-    /**
-     * Get group by its name
-     *
-     * @param groupName name of the group
-     * @return single matching group
-     */
-    @Nullable
-    @Deprecated
-    public Group getGroupByName(String groupName) {
-        List<Group> groupList = groups.values().stream().filter(group -> group.getName().equalsIgnoreCase(groupName)).collect(Collectors.toList());
-        if (groupList.isEmpty()) return null;
-        return groupList.get(0);
-    }
-
-
-    public List<UUID> getPlayerInvites(UUID playerID) {
-        return groupInvites.get(playerID);
-    }
-
-
-    /**
-     * Invite player to specified group
-     *
-     * @param groupID UUID of the group
-     * @param invitee UUID of the player to invite
-     * @param inviter UUID of the player that invited the player
-     */
-    public void invitePlayerToGroup(UUID groupID, UUID invitee, UUID inviter, Callback<Integer> callback) {
-        Main.getDatabase().addInvite(invitee, inviter, groupID, new Callback<Integer>(plugin) {
-            @Override
-            public void onResult(Integer result) {
-                if (result == 1) {
-                    groupInvites.computeIfAbsent(invitee, k -> new ArrayList<>()).add(groupID);
-                }
-                super.onResult(result);
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                super.onError(throwable);
-            }
-        });
-
-        Main.debug("Inviting player " + Bukkit.getPlayer(invitee).getName() + " to join the group " + getGroups().get(groupID).getName());
-    }
 
     /**
      * Create a group with initial name and owner
@@ -187,6 +122,7 @@ public class GroupManager extends Manager {
             public void onResult(Group result) {
                 Main.debug("Successfully created group");
                 groups.put(id, result);
+                Main.getRedisManager().updateGroupPublish(group);
                 super.onResult(result);
             }
 
@@ -244,7 +180,15 @@ public class GroupManager extends Manager {
      * @param group    group you wish to delete
      * @param callback UUID of the deleted group on success, null if unsuccessful.
      */
-    public void deleteGroup(Group group, Callback<UUID> callback) {
+    public void deleteGroup(Group group, Boolean deleteFromDB, Callback<UUID> callback) {
+
+        if (!deleteFromDB) {
+            groups.remove(group.getId());
+
+            if (callback != null)
+                callback.callSyncResult(group.getId());
+            return;
+        }
 
         Main.getDatabase().removeGroup(group, new Callback<UUID>(plugin) {
             @Override
@@ -253,6 +197,7 @@ public class GroupManager extends Manager {
                     callback.callSyncResult(group.getId());
                 }
                 groups.remove(group.getId());
+                Main.getRedisManager().removeGroupPublish(group);
             }
 
             @Override
@@ -266,11 +211,23 @@ public class GroupManager extends Manager {
 
     }
 
-    public void updateGroup(Group newGroup, Callback<Integer> callback) {
+    /**
+     * Update group in memory and in Database
+     *
+     * @param newGroup new group that you wish to update
+     */
+    public void updateGroup(Group newGroup, Boolean updateInDB) {
+
+        if (!updateInDB) {
+            groups.put(newGroup.getId(), newGroup);
+            return;
+        }
+
         Main.getDatabase().addGroup(newGroup, new Callback<Group>(plugin) {
             @Override
             public void onResult(Group result) {
                 groups.put(newGroup.getId(), newGroup);
+                Main.getRedisManager().updateGroupPublish(result);
                 super.onResult(result);
             }
 
@@ -279,7 +236,6 @@ public class GroupManager extends Manager {
                 super.onError(throwable);
             }
         });
-
 
     }
 
@@ -318,7 +274,9 @@ public class GroupManager extends Manager {
         Group group = getGroupClone(groupID);
         group.removeMember(playerID);
 
-        Main.getDatabase().addGroup(group, new Callback<Group>(plugin) {
+        updateGroup(group, true);
+
+      /*  Main.getDatabase().addGroup(group, new Callback<Group>(plugin) {
             @Override
             public void onResult(Group result) {
                 Main.debug("Player was successfully kicked from the group");
@@ -331,18 +289,7 @@ public class GroupManager extends Manager {
                 Main.debug("Failed to kick player from the group");
                 super.onError(throwable);
             }
-        });
-
+        });*/
 
     }
-
-
-
-
-    public void changeGroupName(UUID id, String name) {
-        //TODO: create a name validator
-        groups.get(id).setName(name);
-    }
-
-
 }

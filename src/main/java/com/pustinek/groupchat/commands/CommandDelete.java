@@ -61,7 +61,7 @@ public class CommandDelete extends CommandDefault {
             }
 
 
-            Main.getGroupManager().deleteGroup(group, new Callback<UUID>(plugin) {
+            Main.getGroupManager().deleteGroup(group, true, new Callback<UUID>(plugin) {
                 @Override
                 public void onResult(UUID result) {
                     Main.message(sender, "delete-success");

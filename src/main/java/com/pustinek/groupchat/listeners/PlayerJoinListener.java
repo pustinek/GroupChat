@@ -12,7 +12,7 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerJoinEvent(PlayerJoinEvent event) {
-
+        // Notify player about his invites to groups, if he has any
         Player player = event.getPlayer();
 
         Integer i = Main.getInvitesManager().getPlayerGroupInvites(player.getUniqueId()).size();

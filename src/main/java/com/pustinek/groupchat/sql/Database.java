@@ -178,7 +178,11 @@ public abstract class Database {
                     ps.executeUpdate();
                     ResultSet rs = ps.getGeneratedKeys();
 
-                    int id = rs.getInt(1);
+                    int id = -1;
+                    if (rs.next()) {
+                        id = rs.getInt(1);
+                    }
+
 
 
                     if (callback != null) {
@@ -373,7 +377,7 @@ public abstract class Database {
                         UUID inviter = UUID.fromString(rs.getString("inviter"));
                         UUID groupID = UUID.fromString(rs.getString("groupID"));
 
-                        GroupInvite groupInvite = new GroupInvite(id, groupID, invitee, inviter, null);
+                        GroupInvite groupInvite = new GroupInvite(id, groupID, invitee, inviter);
 
                         invites.add(groupInvite);
                     }

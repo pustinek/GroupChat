@@ -59,7 +59,7 @@ public class CommandCreate extends CommandDefault {
             return;
         }
         String groupName = args[1];
-        Group group = Main.getGroupManager().getGroupByName(groupName);
+        Group group = Main.getGroupManager().getGroupClone(groupName);
         if (group != null) {
             Main.message(sender, "group-alreadyExists");
             return;

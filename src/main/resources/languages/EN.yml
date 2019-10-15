@@ -18,6 +18,7 @@ cmd-onlyByPlayer: "This command can only be run by a player !"
 
 feature-inTheWork: "This is still in the workings :) "
 
+
 help-header: "=== [gold]GroupChat - Help page[reset] ===="
 help-noPermission: "You do not have permission to view the help page."
 help-alias: "Command aliases: /groupchat, /gchat."
@@ -61,7 +62,7 @@ invite-noPermission: "You don't have permission to invite players to a group."
 invite-playerMember: "That player is already in the group."
 invite-success: "Player was successfully invited to the group."
 invite-fail: "Failed to invite player to the group, something went wrong."
-invite-notification: "You've just been invited to join the group [dark_purple]%0%[reset]"
+invite-notification: "You've just been invited to join the group [dark_purple]%0%[reset], use /gchat use /gchat invites to accept|deny the invite"
 
 #invites-help: "/gchat invites [invited_group] [accept|deny]"
 invites-help: "/gchat invites"
@@ -69,7 +70,6 @@ invites-noPermission: "You don't have permission to view your invites to group"
 invites-acceptSuccess: "You successfully [green]joined[reset] the [bold]%0%[reset] group"
 invites-denySuccess: "You successfully [red]rejected[reset] the [bold]%0%[reset] group invite"
 invites-pending: "You have ([dark_purple]%0%[reset]) group invites pending, use /gchat invites to accept/deny the invite"
-
 
 list-help: "/gchat list [true] - value TRUE will show groups you own"
 list-header: "--------Your groups (Member)-------"
@@ -98,7 +98,7 @@ group-notExistOrNotOwner: "Group with that name doesn't exist or you're not the 
 group-notExistOrNotMember: "Group with that name doesn't exist or you're not a member"
 group-invalidName: "&cInvalid group name! you can only use alphanumeric, hyphen and underscore ex: group_name-1"
 
-
+message-noMembersOnline: "[red]Only you are the only player online in this group !"
 
 player-noExist: "Specified player doesn't exist"
 
