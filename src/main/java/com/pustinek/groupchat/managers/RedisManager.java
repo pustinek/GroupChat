@@ -1,6 +1,7 @@
 package com.pustinek.groupchat.managers;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.grack.nanojson.JsonWriter;
 import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.listeners.RedisListener;
 import com.pustinek.groupchat.models.Group;
@@ -16,6 +17,8 @@ public class RedisManager extends Manager {
     }
 
     public void subscribe() {
+        if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
+
         String[] channels = new String[RedisChannels.values().length];
 
         for (int i = 0; i < RedisChannels.values().length; i++) {
@@ -36,6 +39,8 @@ public class RedisManager extends Manager {
     }
 
     public void publish(String channel, String message) {
+        if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
+
         try (Jedis publisher = Main.getJedisPool().getResource()) {
             publisher.publish(channel, message);
         }
@@ -43,6 +48,17 @@ public class RedisManager extends Manager {
     }
 
     public void removeGroupPublish(Group group) {
+        if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
+
+
+        String json = JsonWriter.string()
+                .object()
+                .value("server", Main.getConfigManager().getRedisConfig().getServer())
+                .value("type", "remove")
+                .value("payload", group.getId())
+                .end()
+                .done();
+
 
         ObjectNode objectNode = Main.mapper.createObjectNode();
 
@@ -54,6 +70,7 @@ public class RedisManager extends Manager {
     }
 
     public void updateGroupPublish(Group group) {
+        if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
 
         ObjectNode objectNode = Main.mapper.createObjectNode();
         objectNode.put("server", Main.getConfigManager().getRedisConfig().getServer());
@@ -64,6 +81,8 @@ public class RedisManager extends Manager {
     }
 
     public void addInvitePublish(GroupInvite invite) {
+        if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
+
         ObjectNode objectNode = Main.mapper.createObjectNode();
         objectNode.put("server", Main.getConfigManager().getRedisConfig().getServer());
         objectNode.put("type", "create");
@@ -73,6 +92,8 @@ public class RedisManager extends Manager {
     }
 
     public void responseToGroupInvitePublish(GroupInvite invite, Boolean accepted) {
+        if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
+
         ObjectNode objectNode = Main.mapper.createObjectNode();
         objectNode.put("server", Main.getConfigManager().getRedisConfig().getServer());
         objectNode.put("type", "respond");

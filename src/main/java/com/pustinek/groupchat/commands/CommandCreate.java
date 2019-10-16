@@ -7,6 +7,12 @@ import com.pustinek.groupchat.utils.GroupUtils;
 import com.pustinek.groupchat.utils.Permissions;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+
+import java.util.Iterator;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
 * Example of implemented command
@@ -49,7 +55,27 @@ public class CommandCreate extends CommandDefault {
         Integer groupCount = Main.getGroupManager().getOwnerGroups(player.getUniqueId()).size();
 
         //TODO: create a dynamic permission based group ownership limit !
-        if (groupCount > 4) {
+
+        Set<PermissionAttachmentInfo> effectivePermissions = player.getEffectivePermissions();
+        Pattern limitPatern = Pattern.compile("(groupchat.limit).([0-9]+)");
+        Iterator<PermissionAttachmentInfo> itr = effectivePermissions.iterator();
+
+        Integer limit = 0;
+        while (itr.hasNext()) {
+            PermissionAttachmentInfo info = itr.next();
+            String permission = info.getPermission();
+            Matcher matcher = limitPatern.matcher(permission);
+            if (matcher.find()) {
+                Integer foundLimit = Integer.parseInt(matcher.group(2));
+                if (foundLimit > limit) {
+                    limit = foundLimit;
+                }
+            }
+        }
+        Main.debug("user limit -> " + limit);
+
+
+        if (groupCount > limit) {
             Main.message(sender, "create-maxLimit");
             return;
         }

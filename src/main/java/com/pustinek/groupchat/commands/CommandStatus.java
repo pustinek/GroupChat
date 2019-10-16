@@ -40,5 +40,9 @@ public class CommandStatus extends CommandDefault {
         Main.message(sender, "status-pluginVersion", plugin.getDescription().getVersion());
         Main.message(sender, "status-databaseType", Main.getConfigManager().getDatabaseConfig().getDriver());
 
+        String redisStatusConnection = Main.getRedisConnected() ? "connected" : "disconnected";
+        String redisStatusEnabled = Main.getConfigManager().getRedisConfig().isEnabled() ? "Enabled" : "Disabled";
+        Main.message(sender, "status-redis", redisStatusEnabled, redisStatusConnection);
+
     }
 }

@@ -3,6 +3,7 @@ version: ${project.version}
 main: com.pustinek.groupchat.Main
 api-version: "1.13"
 authors: [Pustinek]
+depend: [Vault]
 description: "group chat for minecraft servers running Spigot/Paper"
 commands:
   groupchat:

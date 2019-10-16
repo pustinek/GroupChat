@@ -29,9 +29,10 @@ public class ConfigManager extends Manager {
 
     public void reloadConfig(){
         try{
-            plugin.getLogger().info("reloading Configs...");
+            plugin.getLogger().info("(re)loading Configs...");
             //Create config file if it doesn't exist
             plugin.saveDefaultConfig();
+            plugin.getConfig().options().copyDefaults(true);
             //Reload config
             plugin.reloadConfig();
             config = plugin.getConfig();
@@ -61,11 +62,12 @@ public class ConfigManager extends Manager {
         }
 
         redisConfig = new RedisConfig(
+                section.getBoolean("enabled", false),
                 section.getString("ip"),
                 section.getInt("port"),
-                section.getString("username"),
-                section.getString("password"),
-                section.getString("server"),
+                section.getString("username", ""),
+                section.getString("password", ""),
+                section.getString("server", "localhost"),
                 section.getString("message_channel")
         );
 

@@ -4,7 +4,6 @@ import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.models.Group;
 import com.pustinek.groupchat.utils.Callback;
 import com.pustinek.groupchat.utils.StreamUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,31 +24,36 @@ public class GroupManager extends Manager {
 
 
     //===================================================
+
+    /**
+     * Get all groups
+     *
+     * @return HashMap for all the groups
+     */
     public HashMap<UUID, Group> getGroups() {
         return groups;
     }
 
+    /**
+     * Get group clone by its name
+     *
+     * @param groupID   UUID of the group
+     * @return single matching group
+     */
     public Group getGroupClone(UUID groupID) {
         return new Group(groups.get(groupID));
     }
 
+    /**
+     * Get group clone by its name
+     *
+     * @param       groupName name of the group
+     * @return single matching group
+     */
     public Group getGroupClone(String groupName) {
         List<Group> groupList = groups.values().stream().filter(group -> group.getName().equalsIgnoreCase(groupName)).collect(Collectors.toList());
         if (groupList.isEmpty()) return null;
         return new Group(groupList.get(0));
-    }
-
-    /**
-     * Get group by its name
-     *
-     * @param groupName name of the group
-     * @return single matching group
-     */
-    @Nullable
-    public Group getGroup(String groupName) {
-        List<Group> groupList = groups.values().stream().filter(group -> group.getName().equalsIgnoreCase(groupName)).collect(Collectors.toList());
-        if (groupList.isEmpty()) return null;
-        return groupList.get(0);
     }
 
     /**
@@ -239,10 +243,16 @@ public class GroupManager extends Manager {
 
     }
 
-
-    public void changeGroupPrefix(UUID id, String prefix) {
+    /**
+     * Change group prefix
+     *
+     * @param groupID  UUID of the group
+     * @param prefix    New prefix
+     *
+     */
+    public void changeGroupPrefix(UUID groupID, String prefix) {
         Main.debug("Prefix value: " + prefix);
-        Group group = groups.get(id);
+        Group group = groups.get(groupID);
         if (group != null) {
             Group groupClone = new Group(group);
             Main.debug("Changing prefix from  " + group.getPrefix() + " to " + groupClone.getPrefix());
@@ -269,27 +279,12 @@ public class GroupManager extends Manager {
      *
      * @param groupID  UUID of the group
      * @param playerID UUID of the player to kick
+     *
      */
     public void kickPlayer(UUID groupID, UUID playerID) {
         Group group = getGroupClone(groupID);
         group.removeMember(playerID);
 
         updateGroup(group, true);
-
-      /*  Main.getDatabase().addGroup(group, new Callback<Group>(plugin) {
-            @Override
-            public void onResult(Group result) {
-                Main.debug("Player was successfully kicked from the group");
-                groups.put(groupID, group);
-                super.onResult(result);
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                Main.debug("Failed to kick player from the group");
-                super.onError(throwable);
-            }
-        });*/
-
     }
 }

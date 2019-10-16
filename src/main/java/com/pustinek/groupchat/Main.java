@@ -21,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -51,6 +52,7 @@ public final class Main extends JavaPlugin {
 
     private static Database database;
     private static JedisPool jedisPool;
+    private static Boolean redisConnected = false;
     // General variables:
 
 
@@ -58,7 +60,6 @@ public final class Main extends JavaPlugin {
     public static Database getDatabase() {
         return database;
     }
-
     public static RedisManager getRedisManager() {
         return redisManager;
     }
@@ -107,9 +108,8 @@ public final class Main extends JavaPlugin {
         return jedisPool;
     }
 
-    public static Jedis createRedisInstance() {
-        RedisConfig redisConfig = configManager.getRedisConfig();
-        return new Jedis(redisConfig.getIp(), redisConfig.getPort());
+    public static Boolean getRedisConnected() {
+        return redisConnected;
     }
 
     /**
@@ -233,6 +233,7 @@ public final class Main extends JavaPlugin {
 
     }
 
+
     private void initializeGroups() {
         debug("Initializing Groups...");
 
@@ -291,15 +292,20 @@ public final class Main extends JavaPlugin {
         pm.registerEvents(new PlayerJoinListener(), this);
     }
 
-    public void initializeJedisPool() {
+    private void initializeJedisPool() {
         RedisConfig redisConfig = configManager.getRedisConfig();
         jedisPool = new JedisPool(
                 new JedisPoolConfig(), redisConfig.getIp(), redisConfig.getPort()
         );
+        try {
+            Jedis jedis = jedisPool.getResource();
+
+            redisConnected = true;
+        } catch (JedisConnectionException ex) {
+            redisConnected = false;
+        }
+
+
     }
-
-
-
-
 
 }

@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandList extends CommandDefault {
     private final Main plugin;
@@ -41,23 +42,21 @@ public class CommandList extends CommandDefault {
         ArrayList<String> messages = new ArrayList<>();
 
         if (args.length == 1) {
-            List<Group> groups = Main.getGroupManager().getMemberGroups(player.getUniqueId());
-            if (groups.isEmpty()) {
+            List<Group> memberGroups = Main.getGroupManager().getMemberGroups(player.getUniqueId());
+            List<Group> ownerGroups = Main.getGroupManager().getOwnerGroups(player.getUniqueId());
+
+            List<Group> filteredMembersList = memberGroups.stream().filter(group -> !group.getMembers().contains(group.getOwner())).collect(Collectors.toList());
+
+            if (memberGroups.isEmpty() && ownerGroups.isEmpty()) {
                 Main.messageNoPrefix(player, "list-noMember");
             } else {
                 Main.messageNoPrefix(player, "list-header");
-                groups.forEach(group -> Main.messageNoPrefix(sender, "list-group", group.getName()));
+                ownerGroups.forEach(group -> Main.messageNoPrefix(sender, "list-groupOwner", group.getName()));
+                filteredMembersList.forEach(group -> Main.messageNoPrefix(sender, "list-groupMember", group.getName()));
+                Main.messageNoPrefix(player, "list-footer");
             }
 
-        } else if (args.length > 1) {
-            List<Group> groups = Main.getGroupManager().getOwnerGroups(player.getUniqueId());
-            if (groups.isEmpty()) {
-                Main.messageNoPrefix(player, "list-noOwner");
-            } else {
-                Main.messageNoPrefix(player, "list-header");
-                groups.forEach(group -> Main.messageNoPrefix(sender, "list-group", group.getName()));
 
-            }
         }
     }
 

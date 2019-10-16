@@ -142,9 +142,7 @@ public class InvitesManager extends Manager {
      * @param playerID UUID of the player that requests to see his invites
      */
     public ArrayList<GroupInvite> getPlayerGroupInvites(UUID playerID) {
-        ArrayList<GroupInvite> result = new ArrayList<>();
-        result = groupInvites.stream().filter(invite -> invite.getInviteeID().equals(playerID)).collect(Collectors.toCollection(ArrayList::new));
-        return result;
+        return groupInvites.stream().filter(invite -> invite.getInviteeID().equals(playerID)).collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**

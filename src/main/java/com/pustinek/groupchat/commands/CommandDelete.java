@@ -51,7 +51,7 @@ public class CommandDelete extends CommandDefault {
 
         if (args.length == 2) {
             String groupName = args[1];
-            Group group = Main.getGroupManager().getGroup(groupName);
+            Group group = Main.getGroupManager().getGroupClone(groupName);
 
 
             //TODO: check the validity of this :D

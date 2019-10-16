@@ -14,7 +14,7 @@ import java.util.UUID;
 public class RedisListener extends JedisPubSub {
     @Override
     public void onMessage(String channel, String message) {
-        Main.debug("[RCT] " + channel + " --> " + message);
+        //Main.debug("[RCT] " + channel + " --> " + message);
 
         if (channel.equals(RedisManager.RedisChannels.CHAT.getValue())) {
 
@@ -38,10 +38,7 @@ public class RedisListener extends JedisPubSub {
                 if (serverNode.textValue().equals(Main.getConfigManager().getRedisConfig().getServer())) return;
 
                 if (typeNode.textValue().equals("update")) {
-                    Main.debug("update !");
-
                     String groupAsString = payloadNode.textValue();
-
                     Group group = Main.gson.fromJson(groupAsString, Group.class);
                     if (group == null) {
                         Main.error("Failed to parse group on another server !");
@@ -51,7 +48,6 @@ public class RedisListener extends JedisPubSub {
                     Main.getGroupManager().updateGroup(group, false);
 
                 } else if (typeNode.textValue().equals("remove")) {
-                    Main.debug("delete !!");
                     UUID groupID = UUID.fromString(payloadNode.textValue());
                     Group group = Main.getGroupManager().getGroupClone(groupID);
 
@@ -71,10 +67,7 @@ public class RedisListener extends JedisPubSub {
                 if (serverNode.textValue().equals(Main.getConfigManager().getRedisConfig().getServer())) return;
 
                 if (typeNode.textValue().equals("create")) {
-                    Main.debug("Invite create !");
-
                     String inviteAsString = payloadNode.textValue();
-
                     GroupInvite invite = Main.gson.fromJson(inviteAsString, GroupInvite.class);
                     if (invite == null) {
                         Main.error("Failed to parse invite on another server !");
@@ -89,7 +82,6 @@ public class RedisListener extends JedisPubSub {
                             null
                     );
                 } else if (typeNode.textValue().equals("respond")) {
-                    Main.debug("Invite respond !");
                     String inviteAsString = payloadNode.textValue();
                     JsonNode payload2Node = actualObj.get("payload_2");
                     Boolean inviteAccepted = payload2Node.asBoolean();

@@ -56,7 +56,7 @@ public class CommandKick extends CommandDefault {
         String groupName = args[1];
         String memberName = args[2];
 
-        Group group = Main.getGroupManager().getGroup(groupName);
+        Group group = Main.getGroupManager().getGroupClone(groupName);
         if (group == null) {
             Main.message(sender, "group-notExists", groupName);
             return;

@@ -11,6 +11,19 @@ helpCommand:
   - "    hover: %lang:action|Use %0%|%"
   - "    command: %0%"
 
+listChatCommand:
+  - "[[grey]Chat[reset]]"
+  - "    hover:  click to chat in this group"
+  - "    command: /groupchat chat %0% 1"
+
+listInfoCommand:
+  - "[[grey]Info[reset]]"
+  - "    hover:  Click to view group information"
+  - "    command: /groupchat info %0%"
+
+
+
+
 confirm-yes: " [gray]Click to %lang:command|Confirm|%0%|%[gray], or repeat the command."
 
 cmd-notValid: "That command is not valid, use '/groupchat help' for info."
@@ -19,22 +32,22 @@ cmd-onlyByPlayer: "This command can only be run by a player !"
 feature-inTheWork: "This is still in the workings :) "
 
 
-help-header: "=== [gold]GroupChat - Help page[reset] ===="
+help-header: "┅┅┅┅┅┅┅┅┅┅┅┅ [gold]GroupChat - Help page[reset] ┅┅┅┅┅┅┅┅┅┅┅┅"
 help-noPermission: "You do not have permission to view the help page."
 help-alias: "Command aliases: /groupchat, /gchat."
-help-chat: "%lang:helpCommand|/gchat chat|% View information about chatting in a group"
-help-info: "%lang:helpCommand|/gchat info|% View information about specified group"
-help-create: "%lang:helpCommand|/gchat create|% Create a new group"
-help-delete: "%lang:helpCommand|/gchat delete|% Delete a new group"
-help-invite: "%lang:helpCommand|/gchat invite|% Invite another player to your group"
-help-invites: "%lang:helpCommand|/gchat invites|% View your invites to groups"
-help-kick: "%lang:helpCommand|/gchat kick|% Kick a player from the group"
-help-list: "%lang:helpCommand|/gchat list|% List all the groups that you're the member/owner of"
-help-manage: "%lang:helpCommand|/gchat manage|% Manage settings of your group"
-help-reload: "%lang:helpCommand|/gchat reload|% Reload config files"
-help-status: "%lang:helpCommand|/gchat status|% View plugin current status"
-help-test: "%lang:helpCommand|/gchat test|% Test random stuff during plugin dev"
-help-footer: "===================="
+help-chat: "► %lang:helpCommand|/gchat chat|% View information about chatting in a group"
+help-info: "► %lang:helpCommand|/gchat info|% View information about specified group"
+help-create: "► %lang:helpCommand|/gchat create|% Create a new group"
+help-delete: "► %lang:helpCommand|/gchat delete|% Delete a new group"
+help-invite: "► %lang:helpCommand|/gchat invite|% Invite another player to your group"
+help-invites: "► %lang:helpCommand|/gchat invites|% View your invites to groups"
+help-kick: "► %lang:helpCommand|/gchat kick|% Kick a player from the group"
+help-list: "► %lang:helpCommand|/gchat list|% List groups you're part of"
+help-manage: "► %lang:helpCommand|/gchat manage|% Manage settings of your group"
+help-reload: "► %lang:helpCommand|/gchat reload|% Reload config files"
+help-status: "► %lang:helpCommand|/gchat status|% View plugin current status"
+help-test: "► %lang:helpCommand|/gchat test|% Test random stuff during plugin dev"
+help-footer: "┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅"
 
 
 info-help: "/gchat info <group_name>"
@@ -72,11 +85,14 @@ invites-denySuccess: "You successfully [red]rejected[reset] the [bold]%0%[reset]
 invites-pending: "You have ([dark_purple]%0%[reset]) group invites pending, use /gchat invites to accept/deny the invite"
 
 list-help: "/gchat list [true] - value TRUE will show groups you own"
-list-header: "--------Your groups (Member)-------"
+list-header: "┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅[gold]Your groups[reset]┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅"
 list-noPermission: "You don't have permission to list your groups."
 list-noMember: "You don't seem to be the member of any groups"
 list-noOwner: "You don't seem to be the owner of any groups"
-list-group: "%0%"
+list-groupOwner: "► [[gold]Owner[reset]] %0% -- %lang:listChatCommand|%0%|% %lang:listInfoCommand|%0%|%"
+list-groupMember: "► [[grey]Member[reset]] %0% -- %lang:listChatCommand|%0%|% %lang:listInfoCommand|%0%|%"
+list-footer: "┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅"
+
 
 manage-help: "/gchat manage <group_name> [prefix/type/name]"
 manage-noPermission: "You don't have permission to manage your groups."
@@ -90,6 +106,7 @@ kick-ownerFail: "You can't kick the owner of the group !"
 status-noPermission: "You don't have permission to view the status of the plugin"
 status-pluginVersion: "plugin version: %0%"
 status-databaseType: "database type: %0%"
+status-redis: "redis: %0% - %1%"
 
 group-alreadyExists: "group with that name already exists"
 group-notTheOwner: "Can't do that, you're not the owner"
