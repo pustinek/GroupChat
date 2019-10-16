@@ -1,6 +1,8 @@
 package com.pustinek.groupchat.listeners;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.grack.nanojson.JsonObject;
+import com.grack.nanojson.JsonParser;
+import com.grack.nanojson.JsonParserException;
 import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.managers.RedisManager;
 import com.pustinek.groupchat.models.Chat;
@@ -8,13 +10,12 @@ import com.pustinek.groupchat.models.Group;
 import com.pustinek.groupchat.models.GroupInvite;
 import redis.clients.jedis.JedisPubSub;
 
-import java.io.IOException;
 import java.util.UUID;
 
 public class RedisListener extends JedisPubSub {
     @Override
     public void onMessage(String channel, String message) {
-        //Main.debug("[RCT] " + channel + " --> " + message);
+        Main.debug("[RCT] " + channel + " --> " + message);
 
         if (channel.equals(RedisManager.RedisChannels.CHAT.getValue())) {
 
@@ -28,18 +29,23 @@ public class RedisListener extends JedisPubSub {
             Main.getChatManager().sendChatToGroupMembers(chatObj);
 
         }
+
+
         if (channel.equals(RedisManager.RedisChannels.GROUP.getValue())) {
             try {
-                JsonNode actualObj = Main.mapper.readTree(message);
-                JsonNode serverNode = actualObj.get("server");
-                JsonNode typeNode = actualObj.get("type");
-                JsonNode payloadNode = actualObj.get("payload");
 
-                if (serverNode.textValue().equals(Main.getConfigManager().getRedisConfig().getServer())) return;
 
-                if (typeNode.textValue().equals("update")) {
-                    String groupAsString = payloadNode.textValue();
-                    Group group = Main.gson.fromJson(groupAsString, Group.class);
+                JsonObject object = JsonParser.object().from(message);
+
+                String server = object.getString("server");
+                String type = object.getString("type");
+                String payload = object.getString("payload");
+
+
+                if (server.equals(Main.getConfigManager().getRedisConfig().getServer())) return;
+
+                if (type.equals("update")) {
+                    Group group = Main.gson.fromJson(payload, Group.class);
                     if (group == null) {
                         Main.error("Failed to parse group on another server !");
                         return;
@@ -47,28 +53,29 @@ public class RedisListener extends JedisPubSub {
 
                     Main.getGroupManager().updateGroup(group, false);
 
-                } else if (typeNode.textValue().equals("remove")) {
-                    UUID groupID = UUID.fromString(payloadNode.textValue());
+                } else if (type.equals("remove")) {
+                    UUID groupID = UUID.fromString(type);
                     Group group = Main.getGroupManager().getGroupClone(groupID);
-
                     Main.getGroupManager().deleteGroup(group, false, null);
                 }
 
-            } catch (IOException e) {
+            } catch (JsonParserException e) {
                 e.printStackTrace();
             }
         } else if (channel.equals(RedisManager.RedisChannels.INVITE.getValue())) {
             try {
-                JsonNode actualObj = Main.mapper.readTree(message);
-                JsonNode serverNode = actualObj.get("server");
-                JsonNode typeNode = actualObj.get("type");
-                JsonNode payloadNode = actualObj.get("payload");
 
-                if (serverNode.textValue().equals(Main.getConfigManager().getRedisConfig().getServer())) return;
+                JsonObject object = JsonParser.object().from(message);
 
-                if (typeNode.textValue().equals("create")) {
-                    String inviteAsString = payloadNode.textValue();
-                    GroupInvite invite = Main.gson.fromJson(inviteAsString, GroupInvite.class);
+                String server = object.getString("server");
+                String type = object.getString("type");
+                String payload = object.getString("payload");
+
+                if (server.equals(Main.getConfigManager().getRedisConfig().getServer())) return;
+
+                if (type.equals("create")) {
+
+                    GroupInvite invite = Main.gson.fromJson(payload, GroupInvite.class);
                     if (invite == null) {
                         Main.error("Failed to parse invite on another server !");
                         return;
@@ -81,20 +88,18 @@ public class RedisListener extends JedisPubSub {
                             false,
                             null
                     );
-                } else if (typeNode.textValue().equals("respond")) {
-                    String inviteAsString = payloadNode.textValue();
-                    JsonNode payload2Node = actualObj.get("payload_2");
-                    Boolean inviteAccepted = payload2Node.asBoolean();
-                    GroupInvite invite = Main.gson.fromJson(inviteAsString, GroupInvite.class);
+                } else if (type.equals("respond")) {
+
+                    Boolean inviteAcceptedPayload = object.getBoolean("payload_2");
+                    GroupInvite invite = Main.gson.fromJson(payload, GroupInvite.class);
                     if (invite == null) {
                         Main.error("Failed to parse invite on another server !");
                         return;
                     }
-
-                    Main.getInvitesManager().respondToGroupInvite(invite, inviteAccepted, false);
+                    Main.getInvitesManager().respondToGroupInvite(invite, inviteAcceptedPayload, false);
                 }
 
-            } catch (IOException e) {
+            } catch (JsonParserException e) {
                 e.printStackTrace();
             }
         }

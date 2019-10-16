@@ -73,6 +73,14 @@ public class CommandInvite extends CommandDefault {
             Main.message(sender, "invite-playerMember");
             return;
         }
+        ArrayList<GroupInvite> groupInvites = Main.getInvitesManager().getGroupPlayerInvites(group.getId());
+        for (GroupInvite gi : groupInvites
+        ) {
+            if (gi.getInviteeID().equals(playerToInvite.getUniqueId())) {
+                Main.message(sender, "invite-playerAlreadyInvited");
+                return;
+            }
+        }
 
 
         Main.getInvitesManager().invitePlayerToGroup(playerToInvite.getUniqueId(), player.getUniqueId(), group.getId(), true, new Callback<GroupInvite>(plugin) {

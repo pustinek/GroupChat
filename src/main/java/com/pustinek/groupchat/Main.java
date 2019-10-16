@@ -1,6 +1,5 @@
 package com.pustinek.groupchat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.pustinek.groupchat.listeners.AsyncPlayerChatListener;
 import com.pustinek.groupchat.listeners.PlayerJoinListener;
@@ -43,7 +42,6 @@ public final class Main extends JavaPlugin {
     private static GUIManager guiManager = null;
     private static InventoryManager inventoryManager = null;
     public static Gson gson = null;
-    public static ObjectMapper mapper = null;
     private static RedisManager redisManager = null;
 
 
@@ -200,7 +198,6 @@ public final class Main extends JavaPlugin {
 
 
         gson = new Gson();
-        mapper = new ObjectMapper();
 
         LanguageManager languageManager = new LanguageManager(
                 this,                                  // The plugin (used to get the languages bundled in the jar file)

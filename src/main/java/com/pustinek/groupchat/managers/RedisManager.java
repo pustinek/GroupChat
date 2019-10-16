@@ -1,6 +1,5 @@
 package com.pustinek.groupchat.managers;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.grack.nanojson.JsonWriter;
 import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.listeners.RedisListener;
@@ -34,15 +33,16 @@ public class RedisManager extends Manager {
 
             }
         };
-
         redisSubThread.start();
     }
 
     public void publish(String channel, String message) {
-        if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
-
+        Main.debug("publish called !");
         try (Jedis publisher = Main.getJedisPool().getResource()) {
+            Main.debug("publish trying !");
             publisher.publish(channel, message);
+        } catch (Exception ex) {
+            Main.error(ex);
         }
 
     }
@@ -55,52 +55,82 @@ public class RedisManager extends Manager {
                 .object()
                 .value("server", Main.getConfigManager().getRedisConfig().getServer())
                 .value("type", "remove")
-                .value("payload", group.getId())
+                .value("payload", group.getId().toString())
                 .end()
                 .done();
 
 
-        ObjectNode objectNode = Main.mapper.createObjectNode();
+
+        /*ObjectNode objectNode = Main.mapper.createObjectNode();
 
         objectNode.put("server", Main.getConfigManager().getRedisConfig().getServer());
         objectNode.put("type", "remove");
         objectNode.put("payload", group.getId().toString());
-
-        Main.getRedisManager().publish(RedisChannels.GROUP.getValue(), objectNode.toString());
+        */
+        Main.getRedisManager().publish(RedisChannels.GROUP.getValue(), json);
     }
 
     public void updateGroupPublish(Group group) {
         if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
 
-        ObjectNode objectNode = Main.mapper.createObjectNode();
-        objectNode.put("server", Main.getConfigManager().getRedisConfig().getServer());
-        objectNode.put("type", "update");
-        objectNode.put("payload", Main.gson.toJson(group));
+        //ObjectNode objectNode = Main.mapper.createObjectNode();
 
-        Main.getRedisManager().publish(RedisChannels.GROUP.getValue(), objectNode.toString());
+        String json = JsonWriter.string()
+                .object()
+                .value("server", Main.getConfigManager().getRedisConfig().getServer())
+                .value("type", "update")
+                .value("payload", Main.gson.toJson(group))
+                .end()
+                .done();
+
+
+        /*objectNode.put("server", Main.getConfigManager().getRedisConfig().getServer());
+        objectNode.put("type", "update");
+        objectNode.put("payload", Main.gson.toJson(group));*/
+
+        Main.getRedisManager().publish(RedisChannels.GROUP.getValue(), json);
     }
 
     public void addInvitePublish(GroupInvite invite) {
         if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
 
-        ObjectNode objectNode = Main.mapper.createObjectNode();
+
+        String json = JsonWriter.string()
+                .object()
+                .value("server", Main.getConfigManager().getRedisConfig().getServer())
+                .value("type", "create")
+                .value("payload", Main.gson.toJson(invite))
+                .end()
+                .done();
+
+      /*  ObjectNode objectNode = Main.mapper.createObjectNode();
         objectNode.put("server", Main.getConfigManager().getRedisConfig().getServer());
         objectNode.put("type", "create");
-        objectNode.put("payload", Main.gson.toJson(invite));
+        objectNode.put("payload", Main.gson.toJson(invite));*/
 
-        Main.getRedisManager().publish(RedisChannels.INVITE.getValue(), objectNode.toString());
+        Main.getRedisManager().publish(RedisChannels.INVITE.getValue(), json);
     }
 
     public void responseToGroupInvitePublish(GroupInvite invite, Boolean accepted) {
         if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
 
-        ObjectNode objectNode = Main.mapper.createObjectNode();
+
+        String json = JsonWriter.string()
+                .object()
+                .value("server", Main.getConfigManager().getRedisConfig().getServer())
+                .value("type", "respond")
+                .value("payload", Main.gson.toJson(invite))
+                .value("payload_2", accepted)
+                .end()
+                .done();
+
+      /*  ObjectNode objectNode = Main.mapper.createObjectNode();
         objectNode.put("server", Main.getConfigManager().getRedisConfig().getServer());
         objectNode.put("type", "respond");
         objectNode.put("payload", Main.gson.toJson(invite));
-        objectNode.put("payload_2", accepted);
+        objectNode.put("payload_2", accepted);*/
 
-        Main.getRedisManager().publish(RedisChannels.INVITE.getValue(), objectNode.toString());
+        Main.getRedisManager().publish(RedisChannels.INVITE.getValue(), json);
     }
 
 

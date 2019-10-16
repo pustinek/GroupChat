@@ -1,6 +1,7 @@
 package com.pustinek.groupchat.listeners;
 
 import com.pustinek.groupchat.Main;
+import com.pustinek.groupchat.managers.RedisManager;
 import com.pustinek.groupchat.models.Chat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,7 +38,7 @@ public class AsyncPlayerChatListener implements Listener {
 
         String json = Main.gson.toJson(chatObj);
 
-        Main.getRedisManager().publish("groupchat_chat", json);
+        Main.getRedisManager().publish(RedisManager.RedisChannels.CHAT.getValue(), json);
 
         event.setCancelled(true);
     }

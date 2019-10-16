@@ -45,7 +45,7 @@ public class CommandList extends CommandDefault {
             List<Group> memberGroups = Main.getGroupManager().getMemberGroups(player.getUniqueId());
             List<Group> ownerGroups = Main.getGroupManager().getOwnerGroups(player.getUniqueId());
 
-            List<Group> filteredMembersList = memberGroups.stream().filter(group -> !group.getMembers().contains(group.getOwner())).collect(Collectors.toList());
+            List<Group> filteredMembersList = memberGroups.stream().filter(group -> !group.getOwner().equals(player.getUniqueId())).collect(Collectors.toList());
 
             if (memberGroups.isEmpty() && ownerGroups.isEmpty()) {
                 Main.messageNoPrefix(player, "list-noMember");
