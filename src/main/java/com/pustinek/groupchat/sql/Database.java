@@ -100,6 +100,7 @@ public abstract class Database {
     public void addGroup(final Group group, Callback<Group> callback) {
         final String query = "REPLACE INTO " + tableGroups + "(id, name, owner, members, options) VALUES(?,?,?,?,?)";
 
+
         new BukkitRunnable() {
             @Override
             public void run() {

@@ -85,7 +85,7 @@ public class SQLite extends Database {
                 + "id VARCHAR(36) PRIMARY KEY NOT NULL,"
                 + "name TINYTEXT NOT NULL,"
                 + "owner TINYTEXT NOT NULL,"
-                + "members TINYTEXT NOT NULL,"
+                + "members TEXT NOT NULL,"
                 + "options TINYTEXT NOT NULL)";
     }
 

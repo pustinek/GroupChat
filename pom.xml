@@ -41,10 +41,15 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <relocations>
                                 <!-- Relocate InteractiveMessenger -->
-                                <!--        <relocation>
+                                <relocation>
                                             <pattern>me.wiefferink.interactivemessenger</pattern>
-                                            <shadedPattern>your.package.here.shaded.interactivemessenger</shadedPattern>
-                                        </relocation>-->
+                                    <shadedPattern>com.pustinek.groupchat.shaded.interactivemessenger</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.zaxxer.hikari</pattern>
+                                    <shadedPattern>com.pustinek.groupchat.dependencies.hikari</shadedPattern>
+                                </relocation>
+
                             </relocations>
                         </configuration>
                     </execution>
