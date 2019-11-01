@@ -33,6 +33,8 @@ public class GroupInvites implements InventoryProvider {
         List<GroupInvite> playerInvites = Main.getInvitesManager().getGroupPlayerInvites(player.getUniqueId());
 
 
+        Main.debug("is: " + playerInvites.size());
+
         ClickableItem[] items = new ClickableItem[playerInvites.size()];
 
         for (int i = 0; i < playerInvites.size(); i++) {

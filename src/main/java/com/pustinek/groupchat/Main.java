@@ -9,6 +9,7 @@ import com.pustinek.groupchat.sql.Database;
 import com.pustinek.groupchat.sql.MySQL;
 import com.pustinek.groupchat.sql.SQLite;
 import com.pustinek.groupchat.utils.Callback;
+import com.pustinek.groupchat.utils.DeleteConformation;
 import fr.minuskube.inv.InventoryManager;
 import me.wiefferink.interactivemessenger.processing.Message;
 import me.wiefferink.interactivemessenger.source.LanguageManager;
@@ -17,7 +18,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 public final class Main extends JavaPlugin {
     // Private static variables
     private static Logger logger;
+    private static Main plugin;
 
     // Managers:
     private Set<Manager> managers = new HashSet<>();
@@ -37,15 +38,13 @@ public final class Main extends JavaPlugin {
     private static ConfigManager configManager = null;
     private static GroupManager groupManager = null;
     private static InvitesManager invitesManager = null;
+    private static DeleteConformation deleteConformation = null;
 
     private static ChatManager chatManager = null;
     private static GUIManager guiManager = null;
     private static InventoryManager inventoryManager = null;
     public static Gson gson = null;
     private static RedisManager redisManager = null;
-
-
-
 
 
     private static Database database;
@@ -108,6 +107,14 @@ public final class Main extends JavaPlugin {
 
     public static Boolean getRedisConnected() {
         return redisConnected;
+    }
+
+
+    public static DeleteConformation getDeleteConformation() {
+        if (deleteConformation == null) {
+            deleteConformation = new DeleteConformation(plugin);
+        }
+        return deleteConformation;
     }
 
     /**
@@ -184,6 +191,8 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         // load logger
         logger = this.getLogger();
+        plugin = this;
+        gson = new Gson();
         // Plugin startup logic
         logger.info(" onEnable");
         //load managers
@@ -197,7 +206,7 @@ public final class Main extends JavaPlugin {
         redisManager.subscribe();
 
 
-        gson = new Gson();
+
 
         LanguageManager languageManager = new LanguageManager(
                 this,                                  // The plugin (used to get the languages bundled in the jar file)
@@ -206,6 +215,7 @@ public final class Main extends JavaPlugin {
                 "EN",                                  // The default language, expected to be shipped with the plugin and should be complete, fills in gaps in the user-selected language
                 Collections.singletonList(configManager.getPluginMessagePrefix()) // Chat prefix to use with Message#prefix(), could of course come from the config file
         );
+
     }
 
     private void loadManagers() {
@@ -291,18 +301,22 @@ public final class Main extends JavaPlugin {
 
     private void initializeJedisPool() {
         RedisConfig redisConfig = configManager.getRedisConfig();
+        if (redisConfig == null || !redisConfig.isEnabled()) {
+            Main.debug("Redis is disabled in config files.");
+            return;
+        }
+
         jedisPool = new JedisPool(
                 new JedisPoolConfig(), redisConfig.getIp(), redisConfig.getPort()
         );
         try {
-            Jedis jedis = jedisPool.getResource();
-
+            jedisPool.getResource();
             redisConnected = true;
         } catch (JedisConnectionException ex) {
             redisConnected = false;
+            Main.error("Redis is enabled, but failed to create a connection ! Check your config files and that redis is running");
         }
-
-
     }
+
 
 }

@@ -1,8 +1,10 @@
 package com.pustinek.groupchat.managers;
 
 import com.pustinek.groupchat.Main;
+import com.pustinek.groupchat.enums.GroupMemberRoles;
 import com.pustinek.groupchat.models.Group;
 import com.pustinek.groupchat.models.GroupInvite;
+import com.pustinek.groupchat.models.GroupMember;
 import com.pustinek.groupchat.utils.Callback;
 
 import java.util.ArrayList;
@@ -32,8 +34,6 @@ public class InvitesManager extends Manager {
      * @param callback return number of loaded invites from database
      */
     public void reloadInvites(final Callback<Integer> callback) {
-        Main.debug("Reloading invites...");
-
         Main.getDatabase().connect(new Callback<Integer>(plugin) {
             @Override
             public void onResult(Integer result) {
@@ -64,75 +64,89 @@ public class InvitesManager extends Manager {
 
     /**
      * @param inviteeID UUID of the invited player
+     * @param inviteeUsername Username of the invited player
      * @param inviterID UUID of the player that invited the player
      * @param groupID   UUID of the group that the player was invited to
      */
-    public void invitePlayerToGroup(UUID inviteeID, UUID inviterID, UUID groupID, Boolean addToDB, Callback<GroupInvite> callback) {
-        GroupInvite invite = new GroupInvite(groupID, inviteeID, inviterID);
+    public void invitePlayerToGroup(UUID inviteeID, String inviteeUsername, UUID inviterID, UUID groupID, Boolean addToDB, boolean redisSync, Callback<GroupInvite> callback) {
+        GroupInvite invite = new GroupInvite(groupID, inviteeID, inviterID, inviteeUsername);
 
-        if (!addToDB) {
-            groupInvites.add(invite);
-            return;
-        }
 
-        Main.getDatabase().addInviteX(invite, new Callback<Integer>(plugin) {
-            @Override
-            public void onResult(Integer result) {
-                invite.setId(result);
-                groupInvites.add(invite);
-                Main.getRedisManager().addInvitePublish(invite);
-                if (callback != null) {
-                    callback.callSyncResult(invite);
+        groupInvites.add(invite);
+        if (redisSync)
+            Main.getRedisManager().addInvitePublish(invite);
+
+        if (addToDB)
+            Main.getDatabase().addInvite(invite, new Callback<Integer>(plugin) {
+                @Override
+                public void onResult(Integer result) {
+                    invite.setId(result);
+                    if (callback != null) {
+                        callback.callSyncResult(invite);
+                    }
                 }
-            }
 
-            @Override
-            public void onError(Throwable throwable) {
-                if (callback != null) {
-                    callback.callSyncError(throwable);
+                @Override
+                public void onError(Throwable throwable) {
+                    if (callback != null) {
+                        callback.callSyncError(throwable);
+                    }
+                    Main.error("Something went wrong when inviting player to group");
+                    Main.error(throwable);
                 }
-                Main.error("Something went wrong when inviting player to group");
-                Main.error(throwable);
-            }
-        });
+            });
 
 
     }
 
     /**
-     * @param invite         Object of the invite
-     * @param inviteAccepted true - if player accepted and wants to join the group, else false
+     * @param invite                        Object of the invite
+     * @param inviteAccepted                true - if player accepted and wants to join the group, else false
+     * @param removeInviteFromDatabase      true - it will remove the invitee entry from database
+     * @param redisSync                      send data via redis to other servers
      */
-    public void respondToGroupInvite(GroupInvite invite, Boolean inviteAccepted, Boolean removeInviteFromDatabase) {
-        //TODO: remove entry from DB and local map
+    public void respondToGroupInvite(GroupInvite invite, boolean inviteAccepted, boolean removeInviteFromDatabase, boolean redisSync) {
+        boolean wasRemove = groupInvites.remove(invite);
 
-        if (!removeInviteFromDatabase) {
-            Main.debug("Invite should be removed !!");
-            Main.debug("invite->groupID: " + invite.getGroupID());
-            Main.debug("invite->InviteeID: " + invite.getInviteeID());
-            Boolean wasRemoved = groupInvites.remove(invite);
-            Main.debug("invite removed -> " + wasRemoved);
-            return;
+
+        if (inviteAccepted) {
+            Group group = Main.getGroupManager().getGroupClone(invite.getGroupID());
+            if (group == null) {
+                // Invalid group, remove it
+                groupInvites.remove(invite);
+                Main.getDatabase().removeInvite(invite.getId(), null);
+                return;
+            }
+
+            GroupMember groupMember = new GroupMember(invite.getInviteeUsername(), invite.getInviteeID(), GroupMemberRoles.MEMBER);
+            // Don't allow duplicate members !
+            if (group.getMembers().contains(groupMember)) {
+                Main.warrning("Player " + groupMember.getUsername() + " tried to join a group " + group.getName() + ", But is already a member !");
+                return;
+            }
+            group.addMember(groupMember);
+            Main.getChatManager().sendGenericGroupMessage(group, (groupMember.getUsername() + " Joined the group. "));
+            Main.getGroupManager().updateGroup(group, removeInviteFromDatabase);
+            if (redisSync) Main.getRedisManager().responseToGroupInvitePublish(invite, true);
+        } else {
+            if (redisSync) Main.getRedisManager().responseToGroupInvitePublish(invite, false);
         }
 
-        Main.getDatabase().removeInvite(invite.getId(), new Callback<Integer>(plugin) {
-            @Override
-            public void onResult(Integer result) {
-                groupInvites.remove(invite);
-                if (inviteAccepted) {
-                    Group group = Main.getGroupManager().getGroupClone(invite.getGroupID());
-                    group.addMember(invite.getInviteeID());
-                    Main.getGroupManager().updateGroup(group, true);
+        if (removeInviteFromDatabase && wasRemove) {
+            Main.getDatabase().removeInvite(invite.getId(), new Callback<Integer>(plugin) {
+                @Override
+                public void onResult(Integer result) {
+                    super.onResult(result);
                 }
-                Main.getRedisManager().responseToGroupInvitePublish(invite, inviteAccepted);
-                super.onResult(result);
-            }
 
-            @Override
-            public void onError(Throwable throwable) {
-                super.onError(throwable);
-            }
-        });
+                @Override
+                public void onError(Throwable throwable) {
+                    Main.error(throwable);
+                    super.onError(throwable);
+                }
+            });
+        }
+
 
     }
 

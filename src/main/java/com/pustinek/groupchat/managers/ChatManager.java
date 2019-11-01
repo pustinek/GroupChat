@@ -35,44 +35,79 @@ public class ChatManager extends Manager {
     }
 
 
+
     public void sendChatToGroupMembers(Chat chatObj) {
 
         Group group = Main.getGroupManager().getGroupClone(chatObj.getGroupID());
+
+        if (group == null) {
+            Main.warrning("trying to send message to group that doesn't exist(groupID: " + chatObj.getGroupID() + ")!");
+            return;
+        }
+
         String playerName = chatObj.getUsername();
         String message = chatObj.getContent();
 
-        Main.debug("sendMessageToGroupMembers called && passe...");
+
         TextComponent cmp = new TextComponent(ChatUtils.chatColor(
                 generateChatPrefix(
-                        Main.getConfigManager().getGroupChatPrefix(), playerName, playerName, group) +
-                        " " +
-                        message));
+                        Main.getConfigManager().getGroupChatPrefix(), playerName, playerName, group)));
+        TextComponent textCmp = new TextComponent(message);
+        textCmp.setColor(Main.getConfigManager().getChatColor());
+
+
+        cmp.addExtra(textCmp);
 
         String hoverText =
-                "GroupName: " + group.getName() + "\n" +
+                "┅┅┅ &6GroupChat &f┅┅┅" + "\n" +
+                        "GroupName: " + group.getName() + "\n" +
                         "Username: " + playerName + "\n" +
                         "Members: " + group.getMembers().size() + "\n" +
-                        "Click to toggle this group";
+                        "&7Click to toggle this group";
 
-        cmp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hoverText).create()));
+        cmp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatUtils.chatColor(hoverText)).create()));
         cmp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/groupchat chat " + group.getName()));
 
-        Integer onlineMembersCount = 0;
+
+        // Main.debug("Group members::: " + group.getMembers().stream().map(GroupMember::getUsername).collect(Collectors.joining(",")));
 
         for (int i = 0; i < group.getMembers().size(); i++) {
-            Player groupMember = Bukkit.getPlayer(group.getMembers().get(i));
+            Player groupMember = Bukkit.getPlayer(group.getUUIDOfMembers().get(i));
             if (groupMember == null || !groupMember.isOnline()) continue;
-            onlineMembersCount++;
             groupMember.spigot().sendMessage(cmp);
         }
 
-        if (onlineMembersCount < 2) {
-            //Main.message(sender, "message-noMembersOnline");
+
+        System.out.println(cmp.getText() + textCmp.getText());
+    }
+
+
+    public void sendGenericGroupMessage(Group group, String message) {
+        if (group == null) {
+            Main.warrning("trying to send a generic message to group that doesn't exist !");
+            return;
         }
 
-        System.out.println(cmp.getText());
+
+        TextComponent cmp = new TextComponent(ChatUtils.chatColor(
+                generateChatPrefix(
+                        Main.getConfigManager().getGroupChatGenericPrefix(), "", "", group)));
+        TextComponent textCmp = new TextComponent(message);
+        textCmp.setColor(Main.getConfigManager().getChatColor());
+
+        for (int i = 0; i < group.getMembers().size(); i++) {
+            Player groupMember = Bukkit.getPlayer(group.getUUIDOfMembers().get(i));
+            if (groupMember == null || !groupMember.isOnline()) continue;
+            groupMember.spigot().sendMessage(cmp);
+        }
+
+
+        System.out.println(cmp.getText() + textCmp.getText());
 
     }
+
+
+
 
     public String generateChatPrefix(String text, String name, String displayName, Group group) {
         String parsedString = "";

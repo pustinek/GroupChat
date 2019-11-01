@@ -84,7 +84,7 @@ public class SQLite extends Database {
         return "CREATE TABLE IF NOT EXISTS " + tableGroups + " ("
                 + "id VARCHAR(36) PRIMARY KEY NOT NULL,"
                 + "name TINYTEXT NOT NULL,"
-                + "owner TINYTEXT NOT NULL,"
+                + "owner VARCHAR(36) NOT NULL,"
                 + "members TEXT NOT NULL,"
                 + "options TINYTEXT NOT NULL)";
     }
@@ -93,9 +93,10 @@ public class SQLite extends Database {
     String getQueryCreateTableInvites() {
         return "CREATE TABLE IF NOT EXISTS " + tableInvites + " ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "invitee TINYTEXT NOT NULL,"
-                + "inviter TINYTEXT NOT NULL,"
-                + "groupID TINYTEXT NOT NULL,"
+                + "invitee VARCHAR(36) NOT NULL,"
+                + "inviteeUsername TINYTEXT NOT NULL,"
+                + "inviter VARCHAR(36) NOT NULL,"
+                + "groupID VARCHAR(36) NOT NULL,"
                 + "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)";
     }
 }

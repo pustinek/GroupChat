@@ -2,14 +2,13 @@ package com.pustinek.groupchat.commands;
 
 import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.models.Group;
-import com.pustinek.groupchat.utils.Callback;
+import com.pustinek.groupchat.utils.DeleteConformation;
 import com.pustinek.groupchat.utils.Permissions;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class CommandDelete extends CommandDefault {
 
@@ -61,18 +60,9 @@ public class CommandDelete extends CommandDefault {
             }
 
 
-            Main.getGroupManager().deleteGroup(group, true, new Callback<UUID>(plugin) {
-                @Override
-                public void onResult(UUID result) {
-                    Main.message(sender, "delete-success");
-                }
+            DeleteConformation.deleteConformationHashMap.put(player.getUniqueId(), group);
 
-                @Override
-                public void onError(Throwable throwable) {
-                    Main.message(sender, "delete-fail");
-                    Main.error(throwable);
-                }
-            });
+            Main.message(sender, "delete-confirmation-header", group.getName());
 
 
         } else {

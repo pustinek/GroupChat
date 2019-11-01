@@ -1,9 +1,13 @@
 package com.pustinek.groupchat.models;
 
+import com.grack.nanojson.*;
+import com.pustinek.groupchat.Main;
+import com.pustinek.groupchat.enums.GroupMemberRoles;
 import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Group implements Cloneable {
 
@@ -12,8 +16,8 @@ public class Group implements Cloneable {
     private String name;
     private String prefix;
     private ChatColor chatColor;
-    private ArrayList<UUID> members;
-    private ArrayList<UUID> joinRequests;
+    private ArrayList<GroupMember> memberArrayList = new ArrayList<>();
+    private ArrayList<UUID> joinRequests = new ArrayList<>();
     private GroupOptions options;
 
     // Comming soon
@@ -23,20 +27,20 @@ public class Group implements Cloneable {
     private int type = 1; // public = 0, private = 1
 
 
-    public Group(UUID id, UUID owner, String name, String prefix, ArrayList<UUID> members) {
+    public Group(UUID id, UUID owner, String name, String prefix, ArrayList<GroupMember> members) {
         this.id = id;
         this.owner = owner;
         this.name = name;
         this.prefix = prefix;
-        this.members = members;
+        this.memberArrayList = members;
     }
 
-    public Group(UUID id, UUID owner, String name, ArrayList<UUID> members, String options) {
+    public Group(UUID id, UUID owner, String name, String options, String members) {
         this.id = id;
         this.owner = owner;
         this.name = name;
-        this.members = members;
         parseGroupOptions(options);
+        parseGroupMembers(members);
     }
 
 
@@ -44,7 +48,7 @@ public class Group implements Cloneable {
         this.id = org.id;
         this.owner = org.owner;
         this.name = org.name;
-        this.members = org.members;
+        this.memberArrayList = org.memberArrayList;
         this.prefix = org.prefix;
         this.joinRequests = org.joinRequests;
         this.type = org.type;
@@ -53,7 +57,6 @@ public class Group implements Cloneable {
 
 
     private void parseGroupOptions(String options) {
-        //Main.debug("options ready to be parse --> " + options);
         String[] keyVals = options.split(",");
         for (String keyVal : keyVals) {
             String[] parts = keyVal.split(":", 2);
@@ -62,8 +65,32 @@ public class Group implements Cloneable {
             } else if (parts[0].equals("type")) {
             }
         }
+    }
 
+    private void parseGroupMembers(String json) {
+        if (json == null || json.equals("")) return;
+        ArrayList<GroupMember> members = new ArrayList<>();
+        try {
+            JsonArray membersJsonArray = JsonParser.array().from(json);
+            membersJsonArray.forEach((a -> {
+                try {
+                    JsonObject obj = JsonParser.object().from(a.toString());
+                    String username = obj.getString("username");
+                    UUID uuid = UUID.fromString(obj.getString("uuid"));
+                    GroupMemberRoles role = GroupMemberRoles.valueOf(obj.getString("role"));
+                    GroupMember member = new GroupMember(username, uuid, role);
+                    members.add(member);
+                } catch (JsonParserException e) {
+                    e.printStackTrace();
+                }
+            }));
 
+            this.memberArrayList = members;
+
+        } catch (JsonParserException e) {
+            Main.error(e);
+            e.printStackTrace();
+        }
     }
 
 
@@ -91,20 +118,31 @@ public class Group implements Cloneable {
         this.prefix = prefix;
     }
 
-    public ArrayList<UUID> getMembers() {
-        return members;
+    public ArrayList<UUID> getUUIDOfMembers() {
+        return memberArrayList.stream().map(GroupMember::getUuid).collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public void setMembers(ArrayList<UUID> members) {
-        this.members = members;
+
+    public GroupMember getOwnerGroupMember() {
+        return memberArrayList.stream().filter(member -> member.getRole().equals(GroupMemberRoles.OWNER)).findAny().orElse(null);
     }
 
-    public void addMember(UUID playerID) {
-        members.add(playerID);
+
+    public ArrayList<GroupMember> getMembers() {
+        return memberArrayList;
+    }
+
+    public GroupMember getGroupMember(UUID memberUUID) {
+        return memberArrayList.stream().filter(member -> member.getUuid().equals(memberUUID)).findAny().orElse(null);
+    }
+
+
+    public void addMember(GroupMember member) {
+        this.memberArrayList.add(member);
     }
 
     public void removeMember(UUID playerID) {
-        members.remove(playerID);
+        memberArrayList.removeIf(member -> member.getUuid().equals(playerID));
     }
 
     public int getType() {
@@ -116,17 +154,26 @@ public class Group implements Cloneable {
     }
 
     /**
-     * Transform ArrayList of UUIDs to string
+     * Transform ArrayList of members to string
      *
-     * @return string of members separated by ,
+     * @return array string of members,
      */
-    public String getMembersAsString() {
-        StringBuilder sb = new StringBuilder();
-        for (UUID uuid : members) {
-            sb.append(uuid);
-            sb.append(",");
-        }
-        return sb.toString();
+
+    public String membersToString() {
+        ArrayList<String> membersString = new ArrayList<>();
+        Main.debug("memberArrayList size -> " + memberArrayList.size() + " :D");
+
+        memberArrayList.forEach(member -> {
+            Main.debug("member -> " + member.getUsername() + " :D");
+            String json = JsonWriter.string().object()
+                    .value("uuid", member.getUuid().toString())
+                    .value("username", member.getUsername())
+                    .value("role", member.getRole().toString())
+                    .end().done();
+            membersString.add(json);
+        });
+
+        return JsonWriter.string().array(membersString).done();
     }
 
     /**
@@ -150,7 +197,7 @@ public class Group implements Cloneable {
 
         private String value;
 
-        private ManageableOptions(String value) {
+        ManageableOptions(String value) {
             this.value = value;
         }
 
@@ -159,6 +206,5 @@ public class Group implements Cloneable {
         }
 
     }
-
-
 }
+

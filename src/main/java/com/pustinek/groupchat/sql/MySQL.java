@@ -23,6 +23,7 @@ public class MySQL extends Database {
                 dbConfig.getAddress(), dbConfig.getDatabase(), dbConfig.getOptions()));
         config.setUsername(dbConfig.getUsername());
         config.setPassword(dbConfig.getPassword());
+        config.setMaxLifetime(dbConfig.getMaxLifetime());
         return new HikariDataSource(config);
     }
 
@@ -53,7 +54,7 @@ public class MySQL extends Database {
         return "CREATE TABLE IF NOT EXISTS " + tableGroups + " ("
                 + "id VARCHAR(36) PRIMARY KEY,"
                 + "name TINYTEXT NOT NULL,"
-                + "owner TINYTEXT NOT NULL,"
+                + "owner VARCHAR(36) NOT NULL,"
                 + "members TEXT NOT NULL,"
                 + "options TEXT NOT NULL)";
     }
@@ -62,9 +63,10 @@ public class MySQL extends Database {
     String getQueryCreateTableInvites() {
         return "CREATE TABLE IF NOT EXISTS " + tableInvites + " ("
                 + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                + "invitee TINYTEXT NOT NULL,"
-                + "inviter TINYTEXT NOT NULL,"
-                + "groupID TINYTEXT NOT NULL,"
+                + "invitee VARCHAR(36) NOT NULL,"
+                + "inviteeUsername TINYTEXT NOT NULL,"
+                + "inviter VARCHAR(36) NOT NULL,"
+                + "groupID VARCHAR(36) NOT NULL,"
                 + "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)";
     }
 }

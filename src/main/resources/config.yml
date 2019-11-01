@@ -13,6 +13,8 @@ chat:
   # {user.name} -> name of the user that sent the message
   # {user.displayName} -> display name of the user that sent the message
   chat_prefix: "&f[&5groupchat&f] &f[&c{group.prefix}&f] {user.displayName} : &7"
+  generic_msg_prefix: "&f[&5groupchat&f] &f[&c{group.prefix}&f] : "
+  default_color: "7"
 
 sql:
   # SQLite, MySQL are supported databases
@@ -29,6 +31,8 @@ sql:
   # to keep the connection alive
   # You can set this to '0' to disable the ping interval
   ping_interval: 3600
+
+  max_life_time: 27000
 
   # Database engine. Only applies to MySQL.
   engine: InnoDB
@@ -47,6 +51,9 @@ sync:
   password: ""
   message_channel: "mc_GroupChat" # this value should be the same across server config files
 
+validations:
+  name_min_length: 3
+  name_max_length: 12
 
 
 groups:

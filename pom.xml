@@ -42,12 +42,16 @@
                             <relocations>
                                 <!-- Relocate InteractiveMessenger -->
                                 <relocation>
-                                            <pattern>me.wiefferink.interactivemessenger</pattern>
+                                    <pattern>me.wiefferink.interactivemessenger</pattern>
                                     <shadedPattern>com.pustinek.groupchat.shaded.interactivemessenger</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.zaxxer.hikari</pattern>
                                     <shadedPattern>com.pustinek.groupchat.dependencies.hikari</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.grack.nanojson</pattern>
+                                    <shadedPattern>com.pustinek.groupchat.shaded.nanojson</shadedPattern>
                                 </relocation>
 
                             </relocations>
@@ -94,7 +98,7 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>2.6.1</version>
+            <version>3.4.1</version>
         </dependency>
         <dependency>
             <groupId>com.grack</groupId>

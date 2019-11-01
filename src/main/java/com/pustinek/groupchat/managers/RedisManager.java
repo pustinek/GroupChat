@@ -3,9 +3,13 @@ package com.pustinek.groupchat.managers;
 import com.grack.nanojson.JsonWriter;
 import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.listeners.RedisListener;
+import com.pustinek.groupchat.models.CachedPlayer;
 import com.pustinek.groupchat.models.Group;
 import com.pustinek.groupchat.models.GroupInvite;
+import org.bukkit.entity.Player;
 import redis.clients.jedis.Jedis;
+
+import java.util.UUID;
 
 public class RedisManager extends Manager {
 
@@ -16,7 +20,7 @@ public class RedisManager extends Manager {
     }
 
     public void subscribe() {
-        if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
+        if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
 
         String[] channels = new String[RedisChannels.values().length];
 
@@ -27,7 +31,6 @@ public class RedisManager extends Manager {
         Thread redisSubThread = new Thread("Redis Subscriber") {
             @Override
             public void run() {
-                System.out.println("redis subscribe thread ran.. !!");
                 Jedis jedis = Main.getJedisPool().getResource();
                 jedis.subscribe(new RedisListener(), channels);
 
@@ -37,7 +40,7 @@ public class RedisManager extends Manager {
     }
 
     public void publish(String channel, String message) {
-        Main.debug("publish called !");
+        if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
         try (Jedis publisher = Main.getJedisPool().getResource()) {
             Main.debug("publish trying !");
             publisher.publish(channel, message);
@@ -48,7 +51,7 @@ public class RedisManager extends Manager {
     }
 
     public void removeGroupPublish(Group group) {
-        if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
+        if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
 
 
         String json = JsonWriter.string()
@@ -59,21 +62,11 @@ public class RedisManager extends Manager {
                 .end()
                 .done();
 
-
-
-        /*ObjectNode objectNode = Main.mapper.createObjectNode();
-
-        objectNode.put("server", Main.getConfigManager().getRedisConfig().getServer());
-        objectNode.put("type", "remove");
-        objectNode.put("payload", group.getId().toString());
-        */
         Main.getRedisManager().publish(RedisChannels.GROUP.getValue(), json);
     }
 
     public void updateGroupPublish(Group group) {
-        if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
-
-        //ObjectNode objectNode = Main.mapper.createObjectNode();
+        if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
 
         String json = JsonWriter.string()
                 .object()
@@ -82,17 +75,11 @@ public class RedisManager extends Manager {
                 .value("payload", Main.gson.toJson(group))
                 .end()
                 .done();
-
-
-        /*objectNode.put("server", Main.getConfigManager().getRedisConfig().getServer());
-        objectNode.put("type", "update");
-        objectNode.put("payload", Main.gson.toJson(group));*/
-
         Main.getRedisManager().publish(RedisChannels.GROUP.getValue(), json);
     }
 
     public void addInvitePublish(GroupInvite invite) {
-        if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
+        if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
 
 
         String json = JsonWriter.string()
@@ -103,17 +90,11 @@ public class RedisManager extends Manager {
                 .end()
                 .done();
 
-      /*  ObjectNode objectNode = Main.mapper.createObjectNode();
-        objectNode.put("server", Main.getConfigManager().getRedisConfig().getServer());
-        objectNode.put("type", "create");
-        objectNode.put("payload", Main.gson.toJson(invite));*/
-
         Main.getRedisManager().publish(RedisChannels.INVITE.getValue(), json);
     }
 
     public void responseToGroupInvitePublish(GroupInvite invite, Boolean accepted) {
-        if (!Main.getConfigManager().getRedisConfig().isEnabled()) return;
-
+        if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
 
         String json = JsonWriter.string()
                 .object()
@@ -124,14 +105,40 @@ public class RedisManager extends Manager {
                 .end()
                 .done();
 
-      /*  ObjectNode objectNode = Main.mapper.createObjectNode();
-        objectNode.put("server", Main.getConfigManager().getRedisConfig().getServer());
-        objectNode.put("type", "respond");
-        objectNode.put("payload", Main.gson.toJson(invite));
-        objectNode.put("payload_2", accepted);*/
-
         Main.getRedisManager().publish(RedisChannels.INVITE.getValue(), json);
     }
+
+
+    public void savePlayerToCache(Player player) {
+
+        CachedPlayer cachedPlayer = new CachedPlayer(player.getUniqueId(), player.getName());
+
+        String json = Main.gson.toJson(cachedPlayer);
+        Jedis jedis = Main.getJedisPool().getResource();
+        String key = player.getUniqueId().toString();
+
+        if (!jedis.exists(key)) {
+            jedis.set(player.getUniqueId().toString(), json);
+            jedis.expire(key, 14400);
+            Main.debug("RedisManager::: saving player to cache.");
+        }
+        jedis.close();
+    }
+
+    public CachedPlayer getPlayerFromCache(UUID playerUUID) {
+        Jedis jedis = Main.getJedisPool().getResource();
+        if (jedis == null) {
+            return null;
+        }
+
+        if (jedis.exists(playerUUID.toString())) {
+            String json = jedis.get(playerUUID.toString());
+
+            return Main.gson.fromJson(json, CachedPlayer.class);
+        }
+        return null;
+    }
+
 
 
     public enum RedisChannels {
@@ -141,7 +148,7 @@ public class RedisManager extends Manager {
 
         private String value;
 
-        private RedisChannels(String value) {
+        RedisChannels(String value) {
             this.value = value;
         }
 

@@ -9,8 +9,9 @@ public class DatabaseConfig {
     private String tablePrefix;
     private String options;
     private Integer ping_interval;
+    private Integer maxLifetime;
 
-    public DatabaseConfig(String driver, String address, String database, String username, String password, String tablePrefix, String options, Integer ping_interval) {
+    public DatabaseConfig(String driver, String address, String database, String username, String password, String tablePrefix, String options, Integer ping_interval, Integer maxLifetime) {
         this.driver = driver;
         this.address = address;
         this.database = database;
@@ -19,6 +20,7 @@ public class DatabaseConfig {
         this.tablePrefix = tablePrefix;
         this.options = options;
         this.ping_interval = ping_interval;
+        this.maxLifetime = maxLifetime;
     }
 
 
@@ -52,5 +54,9 @@ public class DatabaseConfig {
 
     public Integer getPing_interval() {
         return ping_interval;
+    }
+
+    public Integer getMaxLifetime() {
+        return maxLifetime;
     }
 }

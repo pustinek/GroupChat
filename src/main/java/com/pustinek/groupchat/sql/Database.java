@@ -8,7 +8,10 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.UUID;
 
 public abstract class Database {
     Main plugin;
@@ -111,7 +114,7 @@ public abstract class Database {
                     ps.setString(i + 1, group.getId().toString());
                     ps.setString(i + 2, group.getName());
                     ps.setString(i + 3, group.getOwner().toString());
-                    ps.setString(i + 4, group.getMembersAsString());
+                    ps.setString(i + 4, group.membersToString());
                     ps.setString(i + 5, group.getOptionsAsString());
                     ps.executeUpdate();
 
@@ -129,42 +132,9 @@ public abstract class Database {
         }.runTaskAsynchronously(plugin);
     }
 
-    public void addInvite(final UUID invtee, final UUID inviter, final UUID groupID, final Callback<Integer> callback) {
+    public void addInvite(GroupInvite invite, final Callback<Integer> callback) {
         //TODO: create an id for the item, so it's easier to remove later
-        final String query = "REPLACE INTO " + tableInvites + "(invitee, inviter, groupID) VALUES(?,?,?)";
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                try (Connection con = dataSource.getConnection();
-                     PreparedStatement ps = con.prepareStatement(query)
-                ) {
-                    int i = 0;
-                    ps.setString(i + 1, invtee.toString());
-                    ps.setString(i + 2, inviter.toString());
-                    ps.setString(i + 3, groupID.toString());
-                    ps.executeUpdate();
-
-                    if (callback != null) {
-                        callback.callSyncResult(1);
-                    }
-                } catch (SQLException ex) {
-                    if (callback != null) {
-                        callback.callSyncError(ex);
-                    }
-                    Main.error("Failed to add invite to database");
-                    Main.error(ex);
-                }
-
-
-            }
-        }.runTaskAsynchronously(plugin);
-
-    }
-
-    public void addInviteX(GroupInvite invite, final Callback<Integer> callback) {
-        //TODO: create an id for the item, so it's easier to remove later
-        final String query = "REPLACE INTO " + tableInvites + "(invitee, inviter, groupID) VALUES(?,?,?)";
+        final String query = "REPLACE INTO " + tableInvites + "(invitee,inviteeUsername, inviter, groupID) VALUES(?,?,?,?)";
 
         new BukkitRunnable() {
             @Override
@@ -174,8 +144,9 @@ public abstract class Database {
                 ) {
                     int i = 0;
                     ps.setString(i + 1, invite.getInviteeID().toString());
-                    ps.setString(i + 2, invite.getInviterID().toString());
-                    ps.setString(i + 3, invite.getGroupID().toString());
+                    ps.setString(i + 2, invite.getInviteeUsername());
+                    ps.setString(i + 3, invite.getInviterID().toString());
+                    ps.setString(i + 4, invite.getGroupID().toString());
                     ps.executeUpdate();
                     ResultSet rs = ps.getGeneratedKeys();
 
@@ -185,10 +156,10 @@ public abstract class Database {
                     }
 
 
-
                     if (callback != null) {
                         callback.callSyncResult(id);
                     }
+
                 } catch (SQLException ex) {
                     if (callback != null) {
                         callback.callSyncError(ex);
@@ -289,11 +260,9 @@ public abstract class Database {
                         String name = rs.getString("name");
                         UUID owner = UUID.fromString(rs.getString("owner"));
                         String membersString = rs.getString("members");
-                        List<String> members = Arrays.asList(rs.getString("members").split(","));
-                        ArrayList<UUID> membersUUIDList = new ArrayList<>();
-                        members.forEach(member -> membersUUIDList.add(UUID.fromString(member)));
+
                         String options = rs.getString("options");
-                        Group group = new Group(UUID.fromString(id), owner, name, membersUUIDList, options);
+                        Group group = new Group(UUID.fromString(id), owner, name, options, membersString);
 
                         groups.add(group);
                     }
@@ -377,8 +346,9 @@ public abstract class Database {
                         UUID invitee = UUID.fromString(rs.getString("invitee"));
                         UUID inviter = UUID.fromString(rs.getString("inviter"));
                         UUID groupID = UUID.fromString(rs.getString("groupID"));
+                        String inviteeUsername = rs.getString("inviteeUsername");
 
-                        GroupInvite groupInvite = new GroupInvite(id, groupID, invitee, inviter);
+                        GroupInvite groupInvite = new GroupInvite(id, groupID, invitee, inviter, inviteeUsername);
 
                         invites.add(groupInvite);
                     }

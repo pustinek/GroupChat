@@ -30,6 +30,8 @@ public class GroupMainGUI implements InventoryProvider {
                 "&2Basic info",
                 Material.SPRUCE_SIGN,
                 Arrays.asList(
+                        "owner: &f" + (group.getOwnerGroupMember() != null ? group.getOwnerGroupMember().getUsername() : "null"),
+                        "your role: &f" + (group.getGroupMember(player.getUniqueId()) != null ? group.getGroupMember(player.getUniqueId()).getRole().toString() : "unknown"),
                         "members: &f" + group.getMembers().size(),
                         "type: &f" + group.getType(),
                         "tier: &f" + group.getTier()

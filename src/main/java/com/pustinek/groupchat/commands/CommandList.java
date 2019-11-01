@@ -2,6 +2,7 @@ package com.pustinek.groupchat.commands;
 
 import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.models.Group;
+import com.pustinek.groupchat.utils.GroupUtils;
 import com.pustinek.groupchat.utils.Permissions;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -50,7 +51,13 @@ public class CommandList extends CommandDefault {
             if (memberGroups.isEmpty() && ownerGroups.isEmpty()) {
                 Main.messageNoPrefix(player, "list-noMember");
             } else {
-                Main.messageNoPrefix(player, "list-header");
+
+                int groupLimit = GroupUtils.getPlayerGroupLimit(player);
+                int groupCount = ownerGroups.size();
+                Main.debug("groupLimit: " + groupLimit);
+                Main.debug("groupCount: " + groupCount);
+
+                Main.messageNoPrefix(player, "list-header", groupCount, groupLimit);
                 ownerGroups.forEach(group -> Main.messageNoPrefix(sender, "list-groupOwner", group.getName()));
                 filteredMembersList.forEach(group -> Main.messageNoPrefix(sender, "list-groupMember", group.getName()));
                 Main.messageNoPrefix(player, "list-footer");

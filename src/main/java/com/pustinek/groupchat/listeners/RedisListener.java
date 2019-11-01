@@ -54,7 +54,7 @@ public class RedisListener extends JedisPubSub {
                     Main.getGroupManager().updateGroup(group, false);
 
                 } else if (type.equals("remove")) {
-                    UUID groupID = UUID.fromString(type);
+                    UUID groupID = UUID.fromString(payload);
                     Group group = Main.getGroupManager().getGroupClone(groupID);
                     Main.getGroupManager().deleteGroup(group, false, null);
                 }
@@ -83,8 +83,10 @@ public class RedisListener extends JedisPubSub {
 
                     Main.getInvitesManager().invitePlayerToGroup(
                             invite.getInviteeID(),
+                            invite.getInviteeUsername(),
                             invite.getInviterID(),
                             invite.getGroupID(),
+                            false,
                             false,
                             null
                     );
@@ -96,7 +98,7 @@ public class RedisListener extends JedisPubSub {
                         Main.error("Failed to parse invite on another server !");
                         return;
                     }
-                    Main.getInvitesManager().respondToGroupInvite(invite, inviteAcceptedPayload, false);
+                    Main.getInvitesManager().respondToGroupInvite(invite, inviteAcceptedPayload, false, false);
                 }
 
             } catch (JsonParserException e) {

@@ -6,20 +6,23 @@ public class GroupInvite {
     private Integer id;
     private UUID groupID;
     private UUID inviteeID;
+    private String inviteeUsername;
     private UUID inviterID;
 
-    public GroupInvite(Integer id, UUID groupID, UUID inviteeID, UUID inviterID) {
+    public GroupInvite(Integer id, UUID groupID, UUID inviteeID, UUID inviterID, String inviteeUsername) {
         this.id = id;
         this.groupID = groupID;
         this.inviteeID = inviteeID;
         this.inviterID = inviterID;
+        this.inviteeUsername = inviteeUsername;
     }
 
-    public GroupInvite(UUID groupID, UUID inviteeID, UUID inviterID) {
+    public GroupInvite(UUID groupID, UUID inviteeID, UUID inviterID, String inviteeUsername) {
         this.id = -1;
         this.groupID = groupID;
         this.inviteeID = inviteeID;
         this.inviterID = inviterID;
+        this.inviteeUsername = inviteeUsername;
     }
 
 
@@ -43,6 +46,9 @@ public class GroupInvite {
         return inviterID;
     }
 
+    public String getInviteeUsername() {
+        return inviteeUsername;
+    }
 
     @Override
     public boolean equals(Object obj) {

@@ -21,6 +21,10 @@ listInfoCommand:
   - "    hover:  Click to view group information"
   - "    command: /groupchat info %0%"
 
+listGroupCount:
+  - "[[grey]%0%/%1%[reset]]"
+  - "    hover:  Your current group count"
+
 
 
 
@@ -62,13 +66,18 @@ chat-unsetSuccess: "Successfully [red]unset[reset] [bold]%0%[reset] group "
 
 create-help: "/gchat create <group_name>"
 create-noPermission: "You don't have permission to create a group."
-create-maxLimit: "Your group limit is reached."
+create-maxLimit: "Your group limit is reached [%0%/%1%]."
 create-success: "Group was successfully created."
 
 delete-help: "/gchat delete <group_name>"
 delete-noPermission: "You don't have permission to delete a group."
 delete-success: "Group was successfully deleted."
 delete-fail: "Failed to delete the group, something went wrong."
+delete-confirmation-header: "[white]You are about to delete group [bold][red]%0%[reset][white], retype its name in chat: "
+delete-confirmation-fail: "[red]Failed to delete the group, you typed the wrong name"
+delete-confirmation-cancel: "[green]You successfully canceled the group deletion process !"
+
+
 
 invite-help: "/gchat invite <group_name> <player_name>"
 invite-noPermission: "You don't have permission to invite players to a group."
@@ -76,7 +85,7 @@ invite-playerMember: "That player is already in the group."
 invite-playerAlreadyInvited: "That player is already invited to the group"
 invite-success: "Player was successfully invited to the group."
 invite-fail: "Failed to invite player to the group, something went wrong."
-invite-notification: "You've just been invited to join the group [dark_purple]%0%[reset], use /gchat use /gchat invites to accept|deny the invite"
+invite-notification: "You've just been invited to join the group [dark_purple]%0%[reset], /gchat invites to (accept or deny) the invite"
 
 #invites-help: "/gchat invites [invited_group] [accept|deny]"
 invites-help: "/gchat invites"
@@ -86,7 +95,7 @@ invites-denySuccess: "You successfully [red]rejected[reset] the [bold]%0%[reset]
 invites-pending: "You have ([dark_purple]%0%[reset]) group invites pending, use /gchat invites to accept/deny the invite"
 
 list-help: "/gchat list [true] - value TRUE will show groups you own"
-list-header: "┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅[gold]Your groups[reset]┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅"
+list-header: "┅┅┅┅┅┅┅┅┅┅┅┅┅[gold]Your groups[reset] %lang:listGroupCount|%0%|%1%|%┅┅┅┅┅┅┅┅┅┅┅┅┅"
 list-noPermission: "You don't have permission to list your groups."
 list-noMember: "You don't seem to be the member of any groups"
 list-noOwner: "You don't seem to be the owner of any groups"
@@ -101,7 +110,8 @@ manage-invalidPrefix: "Invalid prefix - only use alphanumeric, hyphen and unders
 
 kick-help: "/gchat kick <group_name> <player_to_kick>"
 kick-noPermission: "You don't have permission to kick people from groups."
-kick-success: "You kicked %0% from the %1% group"
+kick-success: "You kicked %0% from the %1% group."
+kick-fail: "Something went wrong kicking %0% from the %1% group !"
 kick-ownerFail: "You can't kick the owner of the group !"
 
 status-noPermission: "You don't have permission to view the status of the plugin"
@@ -114,7 +124,8 @@ group-notTheOwner: "Can't do that, you're not the owner"
 group-notExists: "Group '%0%' doesn't exist"
 group-notExistOrNotOwner: "Group with that name doesn't exist or you're not the owner"
 group-notExistOrNotMember: "Group with that name doesn't exist or you're not a member"
-group-invalidName: "&cInvalid group name! you can only use alphanumeric, hyphen and underscore ex: group_name-1"
+group-invalidName: "[red]Invalid group name! you can only use alphanumeric, hyphen and underscore ex: group_name-1,"
+group-invalidLength: "[red]Invalid group name! Group name has to be between 3 and 12 letters long,"
 
 message-noMembersOnline: "[red]Only you are the only player online in this group !"
 

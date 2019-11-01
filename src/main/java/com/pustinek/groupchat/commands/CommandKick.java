@@ -2,9 +2,8 @@ package com.pustinek.groupchat.commands;
 
 import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.models.Group;
+import com.pustinek.groupchat.models.GroupMember;
 import com.pustinek.groupchat.utils.Permissions;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -62,21 +61,9 @@ public class CommandKick extends CommandDefault {
             return;
         }
 
-        ArrayList<OfflinePlayer> groupMembers = new ArrayList<>();
-        group.getMembers().forEach(member -> {
-            groupMembers.add(Bukkit.getOfflinePlayer(member));
-        });
+        GroupMember memberToKick = group.getMembers().stream().filter(member -> member.getUsername().equalsIgnoreCase(memberName)).findAny().orElse(null);
 
-        Player playerToKick = null;
-        for (OfflinePlayer myPlayer : groupMembers) {
-            if (myPlayer.getName().equals(memberName)) {
-                playerToKick = myPlayer.getPlayer();
-                break;
-            }
-        }
-
-
-        if (playerToKick == null) {
+        if (memberToKick == null) {
             Main.message(sender, "player-noExist", memberName);
             return;
         }
@@ -85,14 +72,22 @@ public class CommandKick extends CommandDefault {
             Main.message(sender, "group-notTheOwner");
             return;
         }
-        if (group.getOwner().equals(playerToKick.getUniqueId())) {
+        if (group.getOwner().equals(memberToKick.getUuid())) {
             Main.message(sender, "kick-ownerFail");
             return;
         }
 
-        Main.getGroupManager().kickPlayer(group.getId(), playerToKick.getUniqueId());
+        boolean success = Main.getGroupManager().kickPlayer(group.getId(), memberToKick.getUuid());
 
-        Main.message(sender, "kick-success", playerToKick.getName(), groupName);
+        if (success) {
+
+            Main.message(sender, "kick-success", memberToKick.getUsername(), groupName);
+        } else {
+            Main.message(sender, "kick-fail", memberToKick.getUsername(), groupName);
+        }
+
+
+
 
     }
 

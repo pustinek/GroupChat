@@ -1,9 +1,13 @@
 package com.pustinek.groupchat.managers;
 
 import com.pustinek.groupchat.Main;
+import com.pustinek.groupchat.enums.GroupMemberRoles;
 import com.pustinek.groupchat.models.Group;
+import com.pustinek.groupchat.models.GroupMember;
 import com.pustinek.groupchat.utils.Callback;
 import com.pustinek.groupchat.utils.StreamUtils;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,9 +43,13 @@ public class GroupManager extends Manager {
      *
      * @param groupID   UUID of the group
      * @return single matching group
+     *
      */
+    @Nullable
     public Group getGroupClone(UUID groupID) {
-        return new Group(groups.get(groupID));
+        if (groups.containsKey(groupID))
+            return new Group(groups.get(groupID));
+        return null;
     }
 
     /**
@@ -74,8 +82,9 @@ public class GroupManager extends Manager {
      * @return List of groups
      */
     public List<Group> getMemberGroups(UUID memberUUID) {
-        return groups.values().stream().filter(group -> group.getMembers().contains(memberUUID)
-        ).collect(Collectors.toList());
+        return groups.values().stream().filter(group -> group.getUUIDOfMembers().contains(memberUUID)).collect(Collectors.toList());
+        //return groups.values().stream().filter(group -> group.getMembers().contains(memberUUID)
+        //).collect(Collectors.toList());
     }
 
 
@@ -95,7 +104,7 @@ public class GroupManager extends Manager {
                     .stream()
                     .filter(
                             entry -> entry.getValue().getName().equalsIgnoreCase(groupName) &&
-                                    entry.getValue().getMembers().contains(member))
+                                    entry.getValue().getUUIDOfMembers().contains(member))
                     .collect(StreamUtils.singletonCollector())
                     .getValue();
         } catch (IllegalStateException e) {
@@ -112,11 +121,12 @@ public class GroupManager extends Manager {
      * Create a group with initial name and owner
      *
      * @param name  name of the group
-     * @param owner uuid of the owner/player that created it
+     * @param player player that created it
      */
-    public void createGroup(String name, UUID owner) {
+    public void createGroup(String name, Player player) {
         UUID id = UUID.randomUUID();
-        Group group = new Group(id, owner, name, name, new ArrayList<>(Collections.singletonList(owner)));
+        GroupMember groupMember = new GroupMember(player.getName(), player.getUniqueId(), GroupMemberRoles.OWNER);
+        Group group = new Group(id, player.getUniqueId(), name, name, new ArrayList<>(Collections.singletonList(groupMember)));
 
 
         Main.debug("Created group with name (" + group.getName() + ")");
@@ -279,12 +289,15 @@ public class GroupManager extends Manager {
      *
      * @param groupID  UUID of the group
      * @param playerID UUID of the player to kick
-     *
+     * @return boolean has the player been kicked
      */
-    public void kickPlayer(UUID groupID, UUID playerID) {
+    public boolean kickPlayer(UUID groupID, UUID playerID) {
         Group group = getGroupClone(groupID);
+        if (group == null) return false;
+        Main.getChatManager().sendGenericGroupMessage(group, " Player " + group.getGroupMember(playerID).getUsername() + " was successfully kicked from the group");
         group.removeMember(playerID);
-
         updateGroup(group, true);
+
+        return true;
     }
 }

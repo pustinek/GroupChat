@@ -2,6 +2,7 @@ package com.pustinek.groupchat.gui;
 
 import com.pustinek.groupchat.managers.GUIManager;
 import com.pustinek.groupchat.models.Group;
+import com.pustinek.groupchat.models.GroupMember;
 import com.pustinek.groupchat.utils.GUIItemGenerator;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
@@ -34,12 +35,12 @@ public class MembersGUI implements InventoryProvider {
         Pagination pagination = contents.pagination();
 
 
-        ArrayList<UUID> members = group.getMembers();
+        ArrayList<GroupMember> members = group.getMembers();
 
         ClickableItem[] items = new ClickableItem[members.size()];
 
         for (int i = 0; i < members.size(); i++) {
-            UUID member = members.get(i);
+            UUID member = members.get(i).getUuid();
 
             ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
             ItemMeta skullMeta = skull.getItemMeta();

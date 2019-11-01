@@ -3,7 +3,6 @@ package com.pustinek.groupchat.commands;
 import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.models.Group;
 import com.pustinek.groupchat.models.GroupInvite;
-import com.pustinek.groupchat.utils.Callback;
 import com.pustinek.groupchat.utils.Permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -69,7 +68,7 @@ public class CommandInvite extends CommandDefault {
             Main.message(sender, "group-notExistOrNotOwner");
             return;
         }
-        if (group.getMembers().contains(playerToInvite.getUniqueId())) {
+        if (group.getUUIDOfMembers().contains(playerToInvite.getUniqueId())) {
             Main.message(sender, "invite-playerMember");
             return;
         }
@@ -83,20 +82,9 @@ public class CommandInvite extends CommandDefault {
         }
 
 
-        Main.getInvitesManager().invitePlayerToGroup(playerToInvite.getUniqueId(), player.getUniqueId(), group.getId(), true, new Callback<GroupInvite>(plugin) {
-            @Override
-            public void onResult(GroupInvite result) {
-
-                Main.message(sender, "invite-success");
-                Main.message(playerToInvite, "invite-notification", group.getName());
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                Main.message(sender, "invite-fail");
-                super.onError(throwable);
-            }
-        });
+        Main.getInvitesManager().invitePlayerToGroup(playerToInvite.getUniqueId(), playerToInvite.getName(), player.getUniqueId(), group.getId(), true, true, null);
+        Main.message(sender, "invite-success");
+        Main.message(playerToInvite, "invite-notification", group.getName());
 
     }
 

@@ -15,6 +15,8 @@ public class PlayerJoinListener implements Listener {
         // Notify player about his invites to groups, if he has any
         Player player = event.getPlayer();
 
+        Main.getRedisManager().savePlayerToCache(player);
+
         Integer i = Main.getInvitesManager().getPlayerGroupInvites(player.getUniqueId()).size();
 
         if (i > 0) {
