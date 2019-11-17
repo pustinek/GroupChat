@@ -14,11 +14,20 @@ import java.util.UUID;
 public class RedisManager extends Manager {
 
     private final Main plugin;
+    private static Thread redisSubThread = null;
 
     public RedisManager(Main plugin) {
         this.plugin = plugin;
     }
 
+    @Override
+    public void shutdown() {
+
+    }
+
+    /*
+     * Subscribe to redis channels
+     * */
     public void subscribe() {
         if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
 
@@ -27,18 +36,27 @@ public class RedisManager extends Manager {
         for (int i = 0; i < RedisChannels.values().length; i++) {
             channels[i] = RedisChannels.values()[i].getValue();
         }
+        if (redisSubThread == null) {
+            redisSubThread = new Thread("Redis Subscriber") {
+                @Override
+                public void run() {
+                    Main.debug("Redis Subscriber thread run...");
+                    Jedis jedis = Main.getJedisPool().getResource();
+                    jedis.subscribe(new RedisListener(), channels);
 
-        Thread redisSubThread = new Thread("Redis Subscriber") {
-            @Override
-            public void run() {
-                Jedis jedis = Main.getJedisPool().getResource();
-                jedis.subscribe(new RedisListener(), channels);
+                }
+            };
+            redisSubThread.start();
+        }
 
-            }
-        };
-        redisSubThread.start();
     }
 
+    /**
+     * Publish message to channel
+     *
+     * @param channel Name of the channel
+     * @param message message to send
+     */
     public void publish(String channel, String message) {
         if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
         try (Jedis publisher = Main.getJedisPool().getResource()) {
@@ -49,7 +67,12 @@ public class RedisManager extends Manager {
         }
 
     }
-
+    /**
+     * Send message when group gets removed
+     *
+     * @param group  group that was removed
+     *
+     */
     public void removeGroupPublish(Group group) {
         if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
 
@@ -64,7 +87,12 @@ public class RedisManager extends Manager {
 
         Main.getRedisManager().publish(RedisChannels.GROUP.getValue(), json);
     }
-
+    /**
+     * Send message when group gets modified
+     *
+     * @param group  new group / modified group
+     *
+     */
     public void updateGroupPublish(Group group) {
         if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
 
@@ -77,7 +105,12 @@ public class RedisManager extends Manager {
                 .done();
         Main.getRedisManager().publish(RedisChannels.GROUP.getValue(), json);
     }
-
+    /**
+     * Send message when player is invited to a group
+     *
+     * @param invite  groupInvite created
+     *
+     */
     public void addInvitePublish(GroupInvite invite) {
         if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
 
@@ -92,7 +125,13 @@ public class RedisManager extends Manager {
 
         Main.getRedisManager().publish(RedisChannels.INVITE.getValue(), json);
     }
-
+    /**
+     * Send message when player responds to invite
+     *
+     * @param invite groupInvite that was responded to
+     * @param accepted was the invite accepted/rejected
+     *
+     */
     public void responseToGroupInvitePublish(GroupInvite invite, Boolean accepted) {
         if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
 
@@ -108,8 +147,14 @@ public class RedisManager extends Manager {
         Main.getRedisManager().publish(RedisChannels.INVITE.getValue(), json);
     }
 
-
+    /**
+     * Save simple player data to cache
+     *
+     * @param player player to save
+     *
+     */
     public void savePlayerToCache(Player player) {
+        if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return;
 
         CachedPlayer cachedPlayer = new CachedPlayer(player.getUniqueId(), player.getName());
 
@@ -126,6 +171,7 @@ public class RedisManager extends Manager {
     }
 
     public CachedPlayer getPlayerFromCache(UUID playerUUID) {
+        if (!Main.getConfigManager().getRedisConfig().isEnabled() || !Main.getRedisConnected()) return null;
         Jedis jedis = Main.getJedisPool().getResource();
         if (jedis == null) {
             return null;

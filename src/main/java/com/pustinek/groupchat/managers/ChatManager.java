@@ -95,6 +95,8 @@ public class ChatManager extends Manager {
         TextComponent textCmp = new TextComponent(message);
         textCmp.setColor(Main.getConfigManager().getChatColor());
 
+        cmp.addExtra(textCmp);
+
         for (int i = 0; i < group.getMembers().size(); i++) {
             Player groupMember = Bukkit.getPlayer(group.getUUIDOfMembers().get(i));
             if (groupMember == null || !groupMember.isOnline()) continue;

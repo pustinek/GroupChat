@@ -1,7 +1,7 @@
 package com.pustinek.groupchat;
 
 import com.google.gson.Gson;
-import com.pustinek.groupchat.listeners.AsyncPlayerChatListener;
+import com.pustinek.groupchat.listeners.PlayerChatListener;
 import com.pustinek.groupchat.listeners.PlayerJoinListener;
 import com.pustinek.groupchat.managers.*;
 import com.pustinek.groupchat.models.RedisConfig;
@@ -187,35 +187,24 @@ public final class Main extends JavaPlugin {
 
     }
 
-    @Override
-    public void onEnable() {
-        // load logger
-        logger = this.getLogger();
-        plugin = this;
-        gson = new Gson();
-        // Plugin startup logic
-        logger.info(" onEnable");
-        //load managers
-        loadManagers();
-        registerListeners();
-        initDatabase();
-        initializeGroups();
-        initializeJedisPool();
+    public static void initializeJedisPool() {
+        RedisConfig redisConfig = configManager.getRedisConfig();
+        if (redisConfig == null || !redisConfig.isEnabled()) {
+            Main.debug("Redis is disabled in config files.");
+            return;
+        }
 
-
-        redisManager.subscribe();
-
-
-
-
-        LanguageManager languageManager = new LanguageManager(
-                this,                                  // The plugin (used to get the languages bundled in the jar file)
-                "languages",                           // Folder where the languages are stored
-                getConfig().getString("language"),     // The language to use indicated by the plugin user
-                "EN",                                  // The default language, expected to be shipped with the plugin and should be complete, fills in gaps in the user-selected language
-                Collections.singletonList(configManager.getPluginMessagePrefix()) // Chat prefix to use with Message#prefix(), could of course come from the config file
+        jedisPool = new JedisPool(
+                new JedisPoolConfig(), redisConfig.getIp(), redisConfig.getPort()
         );
-
+        try {
+            jedisPool.getResource();
+            redisConnected = true;
+            redisManager.subscribe();
+        } catch (JedisConnectionException ex) {
+            redisConnected = false;
+            Main.error("Redis is enabled, but failed to create a connection ! Check your config files and that redis is running");
+        }
     }
 
     private void loadManagers() {
@@ -293,29 +282,36 @@ public final class Main extends JavaPlugin {
         }
     }
 
-    private void registerListeners() {
-        PluginManager pm = Bukkit.getPluginManager();
-        pm.registerEvents(new AsyncPlayerChatListener(this), this);
-        pm.registerEvents(new PlayerJoinListener(), this);
+    @Override
+    public void onEnable() {
+        // load logger
+        logger = this.getLogger();
+        plugin = this;
+        gson = new Gson();
+        // Plugin startup logic
+        logger.info(" onEnable");
+        //load managers
+        loadManagers();
+        registerListeners();
+        initDatabase();
+        initializeGroups();
+        initializeJedisPool();
+
+
+        LanguageManager languageManager = new LanguageManager(
+                this,                                  // The plugin (used to get the languages bundled in the jar file)
+                "languages",                           // Folder where the languages are stored
+                getConfig().getString("language"),     // The language to use indicated by the plugin user
+                "EN",                                  // The default language, expected to be shipped with the plugin and should be complete, fills in gaps in the user-selected language
+                Collections.singletonList(configManager.getPluginMessagePrefix()) // Chat prefix to use with Message#prefix(), could of course come from the config file
+        );
+
     }
 
-    private void initializeJedisPool() {
-        RedisConfig redisConfig = configManager.getRedisConfig();
-        if (redisConfig == null || !redisConfig.isEnabled()) {
-            Main.debug("Redis is disabled in config files.");
-            return;
-        }
-
-        jedisPool = new JedisPool(
-                new JedisPoolConfig(), redisConfig.getIp(), redisConfig.getPort()
-        );
-        try {
-            jedisPool.getResource();
-            redisConnected = true;
-        } catch (JedisConnectionException ex) {
-            redisConnected = false;
-            Main.error("Redis is enabled, but failed to create a connection ! Check your config files and that redis is running");
-        }
+    private void registerListeners() {
+        PluginManager pm = Bukkit.getPluginManager();
+        pm.registerEvents(new PlayerChatListener(this), this);
+        pm.registerEvents(new PlayerJoinListener(), this);
     }
 
 

@@ -47,6 +47,7 @@ help-invite: "► %lang:helpCommand|/gchat invite|% Invite another player to you
 help-invites: "► %lang:helpCommand|/gchat invites|% View your invites to groups"
 help-kick: "► %lang:helpCommand|/gchat kick|% Kick a player from the group"
 help-list: "► %lang:helpCommand|/gchat list|% List groups you're part of"
+help-leave: "► %lang:helpCommand|/gchat leave|% Leave group"
 help-manage: "► %lang:helpCommand|/gchat manage|% Manage settings of your group"
 help-reload: "► %lang:helpCommand|/gchat reload|% Reload config files"
 help-status: "► %lang:helpCommand|/gchat status|% View plugin current status"
@@ -56,11 +57,15 @@ help-footer: "┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
 
 info-help: "/gchat info <group_name>"
 
-reload-success: "You successfully reloaded the config files..."
+reload-configSuccess: "[green]You successfully reloaded the config files."
+reload-redisSuccess: "[green]You successfully reloaded redis."
+reload-redisFail: "[red]Connection failed to redis database !"
+reload-help: "/gchat reload <config | redis>"
+reload-noPermission: "[red]You don't have permissions to reload the plugin !"
 
 
 chat-help: "/gchat chat <group_name> [0/1] "
-chat-noPermission: "You don't have permission to chat in groups"
+chat-noPermission: "[red]You don't have permission to chat in groups !"
 chat-setSuccess: "Successfully [green]set[reset] [bold]%0%[reset] group"
 chat-unsetSuccess: "Successfully [red]unset[reset] [bold]%0%[reset] group "
 
@@ -77,8 +82,6 @@ delete-confirmation-header: "[white]You are about to delete group [bold][red]%0%
 delete-confirmation-fail: "[red]Failed to delete the group, you typed the wrong name"
 delete-confirmation-cancel: "[green]You successfully canceled the group deletion process !"
 
-
-
 invite-help: "/gchat invite <group_name> <player_name>"
 invite-noPermission: "You don't have permission to invite players to a group."
 invite-playerMember: "That player is already in the group."
@@ -87,7 +90,6 @@ invite-success: "Player was successfully invited to the group."
 invite-fail: "Failed to invite player to the group, something went wrong."
 invite-notification: "You've just been invited to join the group [dark_purple]%0%[reset], /gchat invites to (accept or deny) the invite"
 
-#invites-help: "/gchat invites [invited_group] [accept|deny]"
 invites-help: "/gchat invites"
 invites-noPermission: "You don't have permission to view your invites to group"
 invites-acceptSuccess: "You successfully [green]joined[reset] the [bold]%0%[reset] group"
@@ -103,10 +105,16 @@ list-groupOwner: "► [[gold]Owner[reset]] %0% -- %lang:listChatCommand|%0%|% %l
 list-groupMember: "► [[grey]Member[reset]] %0% -- %lang:listChatCommand|%0%|% %lang:listInfoCommand|%0%|%"
 list-footer: "┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅"
 
+leave-help: "/gchat leave <group_name> - leave specified group"
+leave-success: "You successfully left the %0% group"
+leave-fail: "Something went wrong when leaving the group"
+leave-failOwner: "You can't leave the group where you are the owner"
+leave-noPermission: "You don't have permission to leave groups."
 
 manage-help: "/gchat manage <group_name> [prefix/type/name]"
 manage-noPermission: "You don't have permission to manage your groups."
 manage-invalidPrefix: "Invalid prefix - only use alphanumeric, hyphen and underscore ex: prefix_2. Max size (10 char)"
+manage-prefixChangeSuccess: "&2Successfully changed the prefix of group %0% to %1%"
 
 kick-help: "/gchat kick <group_name> <player_to_kick>"
 kick-noPermission: "You don't have permission to kick people from groups."

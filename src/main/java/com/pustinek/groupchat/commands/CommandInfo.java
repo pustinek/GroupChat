@@ -7,6 +7,9 @@ import com.pustinek.groupchat.utils.Permissions;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CommandInfo extends CommandDefault {
     private final Main plugin;
 
@@ -52,7 +55,26 @@ public class CommandInfo extends CommandDefault {
         }
 
         GUIManager.getMainGUI(group).open(player);
+    }
 
+    @Override
+    public List<String> getTabCompleteList(int toComplete, String[] start, CommandSender sender) {
+        List<String> result = new ArrayList<>();
 
+        Player player = (Player) sender;
+
+        if (player == null) {
+            return result;
+        }
+
+        if (toComplete == 2) {
+            if (sender.hasPermission(Permissions.GROUP_INFO)) {
+                for (Group group : Main.getGroupManager().getMemberGroups(player.getUniqueId())) {
+                    result.add(group.getName());
+                }
+            }
+        }
+
+        return result;
     }
 }

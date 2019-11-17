@@ -126,27 +126,15 @@ public class InvitesManager extends Manager {
             }
             group.addMember(groupMember);
             Main.getChatManager().sendGenericGroupMessage(group, (groupMember.getUsername() + " Joined the group. "));
-            Main.getGroupManager().updateGroup(group, removeInviteFromDatabase);
+            Main.getGroupManager().updateGroup(group, removeInviteFromDatabase, redisSync);
             if (redisSync) Main.getRedisManager().responseToGroupInvitePublish(invite, true);
         } else {
             if (redisSync) Main.getRedisManager().responseToGroupInvitePublish(invite, false);
         }
 
         if (removeInviteFromDatabase && wasRemove) {
-            Main.getDatabase().removeInvite(invite.getId(), new Callback<Integer>(plugin) {
-                @Override
-                public void onResult(Integer result) {
-                    super.onResult(result);
-                }
-
-                @Override
-                public void onError(Throwable throwable) {
-                    Main.error(throwable);
-                    super.onError(throwable);
-                }
-            });
+            Main.getDatabase().removeInvite(invite.getId(), null);
         }
-
 
     }
 

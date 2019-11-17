@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.pustinek</groupId>
     <artifactId>GroupChat</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>GroupChat</name>
@@ -53,7 +53,14 @@
                                     <pattern>com.grack.nanojson</pattern>
                                     <shadedPattern>com.pustinek.groupchat.shaded.nanojson</shadedPattern>
                                 </relocation>
-
+                                <relocation>
+                                    <pattern>com.google.gson</pattern>
+                                    <shadedPattern>com.pustinek.groupchat.shaded.gson</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>redis.clients.jedis</pattern>
+                                    <shadedPattern>com.pustinek.groupchat.shaded.jedis</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>

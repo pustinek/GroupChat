@@ -3,7 +3,6 @@ package com.pustinek.groupchat.commands;
 import com.pustinek.groupchat.Main;
 import com.pustinek.groupchat.utils.Permissions;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 
 public class CommandStatus extends CommandDefault {
@@ -29,7 +28,6 @@ public class CommandStatus extends CommandDefault {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Player player = (Player) sender;
 
         if (!sender.hasPermission(Permissions.PLUGIN_STATUS)) {
             // The player (Sender) doesn't have the required permissions, notify him

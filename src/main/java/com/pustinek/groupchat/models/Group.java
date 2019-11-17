@@ -137,8 +137,16 @@ public class Group implements Cloneable {
     }
 
 
-    public void addMember(GroupMember member) {
+    /**
+     * Add member to the group - prevents duplicated
+     *
+     * @param member GroupMember to add to the group
+     * @return boolean - was successfully added to the group (false - member already in the group)
+     */
+    public boolean addMember(GroupMember member) {
+        if (this.memberArrayList.contains(member)) return false;
         this.memberArrayList.add(member);
+        return true;
     }
 
     public void removeMember(UUID playerID) {
@@ -161,10 +169,7 @@ public class Group implements Cloneable {
 
     public String membersToString() {
         ArrayList<String> membersString = new ArrayList<>();
-        Main.debug("memberArrayList size -> " + memberArrayList.size() + " :D");
-
         memberArrayList.forEach(member -> {
-            Main.debug("member -> " + member.getUsername() + " :D");
             String json = JsonWriter.string().object()
                     .value("uuid", member.getUuid().toString())
                     .value("username", member.getUsername())

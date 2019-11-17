@@ -19,5 +19,6 @@ public class Permissions {
     public static final String GROUP_MANAGE = PLUGIN_NAME + ".manage";
     public static final String GROUP_KICK = PLUGIN_NAME + ".kick";
     public static final String GROUP_LIST = PLUGIN_NAME + ".list";
+    public static final String GROUP_LEAVE = PLUGIN_NAME + ".leave";
 
 }

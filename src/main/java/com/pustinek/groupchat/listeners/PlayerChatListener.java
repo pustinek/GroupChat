@@ -14,11 +14,11 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import java.util.UUID;
 
 
-public class AsyncPlayerChatListener implements Listener {
+public class PlayerChatListener implements Listener {
 
     private final Main plugin;
 
-    public AsyncPlayerChatListener(Main plugin) {
+    public PlayerChatListener(Main plugin) {
         this.plugin = plugin;
     }
 

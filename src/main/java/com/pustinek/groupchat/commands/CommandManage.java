@@ -69,6 +69,7 @@ public class CommandManage extends CommandDefault {
                 return;
             }
             Main.getGroupManager().changeGroupPrefix(group.getId(), variableValue);
+            Main.message(sender, "manage-prefixChangeSuccess", groupName, variableValue);
 
         } else if (variable.equalsIgnoreCase("type")) {
             Main.message(sender, "feature-inTheWork");

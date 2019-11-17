@@ -1,6 +1,4 @@
-
-configVersion: "1.0"
-debug: true
+debug: false
 plugin_message_prefix: "&f[&5GroupChat&f] "
 
 chat:
@@ -39,7 +37,7 @@ sql:
 
   options: 'useSSL=false&serverTimezone=UTC'
 
-sync:
+redis:
   server: lobby
   enabled: true
   # Here are all the settings used for REDIS server, if you want a smooth
@@ -54,34 +52,5 @@ sync:
 validations:
   name_min_length: 3
   name_max_length: 12
-
-
-groups:
-  - tier: 0
-    member_limit: 5
-    public: false
-    requirements: []
-  - tier: 1
-    member_limit: 10
-    public: false
-    requirements:
-      - money 50000
-      - permission group.emerald
-      - item diamond 128
-  - tier: 2
-    member_limit: 20
-    public: false
-    requirements:
-      - money 30000
-      - permission group.vip
-      - item diamond 128
-  - tier: 3
-    member_limit: 20
-    public: true
-    requirements:
-      - money 30000
-      - permission group.vip
-      - item diamond 128
-
 
 

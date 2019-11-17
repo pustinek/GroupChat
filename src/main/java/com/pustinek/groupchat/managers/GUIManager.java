@@ -48,7 +48,7 @@ public class GUIManager extends Manager {
         return SmartInventory.builder()
                 .manager(Main.getInventoryManager())
                 .provider(new InvitesGUI())
-                .size(4, 9)
+                .size(5, 9)
                 .title("Your invites to groups")
                 .build();
     }

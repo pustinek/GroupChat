@@ -7,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +17,9 @@ import java.util.TreeSet;
 public class CommandManager extends Manager implements CommandExecutor, TabCompleter {
 
     private final ArrayList<CommandDefault> commands;
-    private final Main plugin;
 
     public CommandManager(Main plugin) {
         // store plugin instance
-        this.plugin = plugin;
 
         commands = new ArrayList<>();
         //ADD: Here you add the commands that you want to use..
@@ -31,6 +30,7 @@ public class CommandManager extends Manager implements CommandExecutor, TabCompl
         commands.add(new CommandCreate(plugin));
         commands.add(new CommandDelete(plugin));
         commands.add(new CommandList(plugin));
+        commands.add(new CommandLeave());
         commands.add(new CommandInvite(plugin));
         commands.add(new CommandInvites(plugin));
         commands.add(new CommandManage(plugin));
@@ -64,7 +64,7 @@ public class CommandManager extends Manager implements CommandExecutor, TabCompl
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         boolean executed = false;
         for (int i = 0; i < commands.size() && !executed; i++) {
             if (commands.get(i).canExecute(command, args)) {
@@ -76,13 +76,13 @@ public class CommandManager extends Manager implements CommandExecutor, TabCompl
             this.showHelp(sender);
         } else if (!executed) {
             Main.message(sender, " Command is not valid");
-            plugin.message(sender, "cmd-notValid");
+            Main.message(sender, "cmd-notValid");
         }
         return true;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         List<String> result = new ArrayList<>();
         if (!sender.hasPermission(Permissions.TAB_COMPLETE)) {
             return result;

@@ -11,10 +11,8 @@ import fr.minuskube.inv.content.Pagination;
 import fr.minuskube.inv.content.SlotIterator;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
@@ -37,24 +35,34 @@ public class MembersGUI implements InventoryProvider {
 
         ArrayList<GroupMember> members = group.getMembers();
 
+
         ClickableItem[] items = new ClickableItem[members.size()];
 
         for (int i = 0; i < members.size(); i++) {
             UUID member = members.get(i).getUuid();
+            GroupMember groupMember = members.get(i);
 
             ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
-            ItemMeta skullMeta = skull.getItemMeta();
             SkullMeta testMeta = (SkullMeta) skull.getItemMeta();
 
-
-            OfflinePlayer memberPlayer = Bukkit.getServer().getOfflinePlayer(member);
-            if (testMeta != null) {
-                testMeta.setDisplayName(memberPlayer.getName());
-                testMeta.setOwningPlayer(memberPlayer);
-                skull.setItemMeta(testMeta);
+            if (testMeta == null) {
+                items[i] = ClickableItem.empty(skull);
+                continue;
             }
 
-            items[i] = ClickableItem.empty(skull);
+            Player memberPlayer = Bukkit.getPlayer(member);
+
+            if (memberPlayer != null && memberPlayer.isOnline()) {
+                testMeta.setDisplayName(groupMember.getUsername());
+                testMeta.setOwningPlayer(memberPlayer);
+                skull.setItemMeta(testMeta);
+                items[i] = ClickableItem.empty(skull);
+            } else {
+                testMeta.setDisplayName(groupMember.getUsername());
+                skull.setItemMeta(testMeta);
+                items[i] = ClickableItem.empty(skull);
+            }
+
         }
 
 

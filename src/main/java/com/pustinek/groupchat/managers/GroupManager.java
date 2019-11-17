@@ -7,6 +7,7 @@ import com.pustinek.groupchat.models.GroupMember;
 import com.pustinek.groupchat.utils.Callback;
 import com.pustinek.groupchat.utils.StreamUtils;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -158,7 +159,6 @@ public class GroupManager extends Manager {
      * @param callback return number of loaded groups from database
      */
     public void reloadGroups(final Callback<Integer> callback) {
-        Main.debug("Reloading groups...");
 
         Main.getDatabase().connect(new Callback<Integer>(plugin) {
             @Override
@@ -229,27 +229,13 @@ public class GroupManager extends Manager {
      * Update group in memory and in Database
      *
      * @param newGroup new group that you wish to update
+     * @param updateDB should it update database entry
      */
-    public void updateGroup(Group newGroup, Boolean updateInDB) {
+    public void updateGroup(@NotNull Group newGroup, boolean updateDB, boolean redisSync) {
 
-        if (!updateInDB) {
-            groups.put(newGroup.getId(), newGroup);
-            return;
-        }
-
-        Main.getDatabase().addGroup(newGroup, new Callback<Group>(plugin) {
-            @Override
-            public void onResult(Group result) {
-                groups.put(newGroup.getId(), newGroup);
-                Main.getRedisManager().updateGroupPublish(result);
-                super.onResult(result);
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                super.onError(throwable);
-            }
-        });
+        groups.put(newGroup.getId(), newGroup);
+        if (redisSync) Main.getRedisManager().updateGroupPublish(newGroup);
+        if (updateDB) Main.getDatabase().addGroup(newGroup, null);
 
     }
 
@@ -261,11 +247,9 @@ public class GroupManager extends Manager {
      *
      */
     public void changeGroupPrefix(UUID groupID, String prefix) {
-        Main.debug("Prefix value: " + prefix);
         Group group = groups.get(groupID);
         if (group != null) {
             Group groupClone = new Group(group);
-            Main.debug("Changing prefix from  " + group.getPrefix() + " to " + groupClone.getPrefix());
             groupClone.setPrefix(prefix);
             Main.getDatabase().addGroup(groupClone, new Callback<Group>(plugin) {
                 @Override
@@ -285,19 +269,37 @@ public class GroupManager extends Manager {
     }
 
     /**
-     * Kick player from group
+     * Kick player from the group
      *
      * @param groupID  UUID of the group
      * @param playerID UUID of the player to kick
      * @return boolean has the player been kicked
      */
-    public boolean kickPlayer(UUID groupID, UUID playerID) {
+    public boolean kickPlayer(UUID groupID, UUID playerID, boolean updateDB, boolean redisSync) {
         Group group = getGroupClone(groupID);
         if (group == null) return false;
         Main.getChatManager().sendGenericGroupMessage(group, " Player " + group.getGroupMember(playerID).getUsername() + " was successfully kicked from the group");
         group.removeMember(playerID);
-        updateGroup(group, true);
-
+        updateGroup(group, updateDB, redisSync);
         return true;
     }
+
+    /**
+     * Leave the group
+     *
+     * @param groupID  UUID of the group
+     * @param playerID UUID of the player to kick
+     * @return boolean has the player successfully left the group
+     */
+    public boolean leaveGroup(UUID groupID, UUID playerID, boolean updateDB, boolean redisSync) {
+        Group group = getGroupClone(groupID);
+
+        if (group == null) return false;
+        Main.getChatManager().sendGenericGroupMessage(group, " Player " + group.getGroupMember(playerID).getUsername() + " left the group");
+        group.removeMember(playerID);
+        updateGroup(group, updateDB, redisSync);
+        return true;
+    }
+
+
 }

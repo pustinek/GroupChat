@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandKick extends CommandDefault {
 
@@ -77,18 +78,13 @@ public class CommandKick extends CommandDefault {
             return;
         }
 
-        boolean success = Main.getGroupManager().kickPlayer(group.getId(), memberToKick.getUuid());
+        boolean success = Main.getGroupManager().kickPlayer(group.getId(), memberToKick.getUuid(), true, true);
 
         if (success) {
-
             Main.message(sender, "kick-success", memberToKick.getUsername(), groupName);
         } else {
             Main.message(sender, "kick-fail", memberToKick.getUsername(), groupName);
         }
-
-
-
-
     }
 
     @Override
@@ -97,17 +93,32 @@ public class CommandKick extends CommandDefault {
 
         Player player = (Player) sender;
 
-        if (player == null) {
+        if (player == null || !sender.hasPermission(Permissions.GROUP_KICK)) {
             return result;
         }
 
+
         if (toComplete == 2) {
-            if (sender.hasPermission(Permissions.GROUP_DELETE)) {
                 for (Group group : Main.getGroupManager().getMemberGroups(player.getUniqueId())) {
-                    result.add(group.getName());
+                    if (group.getOwner().equals(player.getUniqueId()))
+                        result.add(group.getName());
                 }
-            }
         }
+
+        // return if there is no group specified
+        if (start.length < 3) return result;
+        String groupName = start[2];
+        Group group = Main.getGroupManager().getGroupClone(groupName);
+        // group with that name doesn't exist - return
+        if (group == null) return result;
+
+        result = group.getMembers().stream().map(gm -> {
+            if (!group.getOwner().equals(gm.getUuid())) {
+                return gm.getUsername();
+            }
+            return "";
+        }).collect(Collectors.toList());
+
 
         return result;
     }

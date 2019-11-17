@@ -51,7 +51,7 @@ public class RedisListener extends JedisPubSub {
                         return;
                     }
 
-                    Main.getGroupManager().updateGroup(group, false);
+                    Main.getGroupManager().updateGroup(group, false, false);
 
                 } else if (type.equals("remove")) {
                     UUID groupID = UUID.fromString(payload);

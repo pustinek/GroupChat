@@ -30,8 +30,6 @@ public class ConfigManager extends Manager {
 
         plugin.saveDefaultConfig();
 
-
-
         reloadConfig();
     }
 
@@ -57,7 +55,7 @@ public class ConfigManager extends Manager {
 
         loadSectionSQL(config.getConfigurationSection("sql"));
         loadSectionChat(config.getConfigurationSection("chat"));
-        loadSectionRedis(config.getConfigurationSection("sync"));
+        loadSectionRedis(config.getConfigurationSection("redis"));
     }
 
 
@@ -118,7 +116,6 @@ public class ConfigManager extends Manager {
         String chatDefaultColorString = section.getString("default_color", "7");
         if (chatDefaultColorString != null)
             chatDefaultColor = chatDefaultColorString.charAt(chatDefaultColorString.length() - 1);
-        Main.debug("settings chat color as = " + chatDefaultColor);
         chatColor = ChatColor.getByChar(chatDefaultColor);
     }
 

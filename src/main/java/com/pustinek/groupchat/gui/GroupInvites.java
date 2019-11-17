@@ -60,11 +60,11 @@ public class GroupInvites implements InventoryProvider {
                 ,
                 e -> GUIManager.getMainGUI(group).open(player)));
         contents.set(4, 6, ClickableItem.of(
-                GUIItemGenerator.itemGenerator("&2previous page", Material.ARROW, Collections.singletonList(""))
+                GUIItemGenerator.itemGenerator("&cprevious page", Material.ARROW, Collections.singletonList(""))
                 ,
                 e -> GUIManager.getGroupInvites(group).open(player, pagination.previous().getPage())));
         contents.set(4, 8, ClickableItem.of(
-                GUIItemGenerator.itemGenerator("&cnext page", Material.ARROW, Collections.singletonList(""))
+                GUIItemGenerator.itemGenerator("&2next page", Material.ARROW, Collections.singletonList(""))
                 ,
                 e -> GUIManager.getGroupInvites(group).open(player, pagination.next().getPage())));
     }
